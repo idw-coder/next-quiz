@@ -21,15 +21,16 @@ import {
   Add,
   PlayArrow,
 } from "@mui/icons-material";
+import { quizRepository } from "@/lib/quiz.repository";
 
 interface QuizCategory {
   id: number;
   category_name: string;
   description: string;
-  author_id: number;
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string | null;
+  // author_id: number;
+  // created_at: string;
+  // updated_at: string;
+  // deleted_at?: string | null;
 }
 
 export default function Home() {
@@ -41,43 +42,12 @@ export default function Home() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      // TODO: バックエンドAPI実装後に有効化
-      // const response = await fetch("http://localhost/api/quiz-categories", {
-      //   headers: {
-      //     Authorization: `Bearer ${localStorage.getItem("sanctum_token")}`,
-      //   },
-      // })
-      // const categories = await response.json()
-      // setCategories(categories)
-
-      // 仮のモックデータ（API実装後に削除）
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      setCategories([
-        {
-          id: 1,
-          category_name: "JavaScript基礎",
-          description: "JavaScriptの基本的な文法と概念についての問題",
-          author_id: 1,
-          created_at: "2024-01-01T00:00:00.000Z",
-          updated_at: "2024-01-01T00:00:00.000Z",
-          deleted_at: null,
-        },
-        {
-          id: 2,
-          category_name: "React基礎",
-          description: "Reactの基本的な使い方とコンポーネントについて",
-          author_id: 1,
-          created_at: "2024-01-02T00:00:00.000Z",
-          updated_at: "2024-01-02T00:00:00.000Z",
-          deleted_at: null,
-        },
-      ]);
+      const categories = await quizRepository.findAllCategory();
+      setCategories(categories);
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "問題カテゴリーの取得に失敗しました"
-      );
+        error instanceof Error ? error.message : "問題カテゴリーの取得に失敗しました"
+      )
     } finally {
       setLoading(false);
     }
@@ -142,9 +112,9 @@ export default function Home() {
               <TableCell>カテゴリー名</TableCell>
               <TableCell>説明</TableCell>
               <TableCell>クイズ</TableCell>
-              <TableCell>作成日時</TableCell>
-              <TableCell>更新日時</TableCell>
-              <TableCell>削除日時</TableCell>
+              {/* <TableCell>作成日時</TableCell> */}
+              {/* <TableCell>更新日時</TableCell> */}
+              {/* <TableCell>削除日時</TableCell> */}
               <TableCell>操作</TableCell>
             </TableRow>
           </TableHead>
@@ -154,7 +124,7 @@ export default function Home() {
                 key={category.id}
                 sx={{
                   "&:last-child td, &:last-child th": { border: 0 },
-                  backgroundColor: category.deleted_at ? "#f0f0f0" : "#fff",
+                  // backgroundColor: category.deleted_at ? "#f0f0f0" : "#fff",
                 }}
               >
                 <TableCell component="th" scope="row">
@@ -173,13 +143,13 @@ export default function Home() {
                   </Button>
                 </TableCell>
 
-                <TableCell>{formatDate(category.created_at)}</TableCell>
-                <TableCell>{formatDate(category.updated_at)}</TableCell>
-                <TableCell>
-                  {category.deleted_at
+                {/* <TableCell>{formatDate(category.created_at)}</TableCell> */}
+                {/* <TableCell>{formatDate(category.updated_at)}</TableCell> */}
+                {/* <TableCell> */}
+                  {/* {category.deleted_at
                     ? formatDate(category.deleted_at)
-                    : "---"}
-                </TableCell>
+                    : "---"} */}
+                {/* </TableCell> */}
                 <TableCell>
                   <div
                     style={{
@@ -214,8 +184,8 @@ export default function Home() {
                     >
                       <Edit />
                     </IconButton>
-                    {category.deleted_at ? (
-                      <IconButton
+                    {/* {category.deleted_at ? ( */}
+                      {/* <IconButton
                         size="small"
                         onClick={() => handleRestore(category.id)}
                         title="復元"
@@ -223,11 +193,11 @@ export default function Home() {
                           "& svg": { fontSize: "18px" },
                           color: "primary.light",
                         }}
-                      >
-                        <Restore />
-                      </IconButton>
-                    ) : (
-                      <IconButton
+                      > */}
+                        {/* <Restore /> */}
+                      {/* </IconButton> */}
+                    {/* ) : ( */}
+                      {/* <IconButton
                         size="small"
                         onClick={() => handleDelete(category.id)}
                         title="削除"
@@ -235,10 +205,10 @@ export default function Home() {
                           "& svg": { fontSize: "18px" },
                           color: "error.light",
                         }}
-                      >
-                        <Delete />
-                      </IconButton>
-                    )}
+                      > */}
+                        {/* <Delete /> */}
+                      {/* </IconButton> */}
+                    {/* )} */}
                   </div>
                 </TableCell>
               </TableRow>
