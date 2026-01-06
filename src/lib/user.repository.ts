@@ -12,8 +12,8 @@ export interface User {
   message?: string;
 }
 
-const API_BASE_URL = "http://localhost/api";
-const STORAGE_BASE_URL = "http://localhost/storage";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const STORAGE_BASE_URL = process.env.NEXT_PUBLIC_STORAGE_URL
 const api = axios.create({baseURL: API_BASE_URL})
 
 
