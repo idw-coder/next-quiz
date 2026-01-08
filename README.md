@@ -68,3 +68,12 @@ sudo nginx -t
 sudo systemctl reload nginx
 sudo setsebool -P httpd_can_network_connect 1
 ```
+
+git pull
+
+```bash
+cd /var/www/nextjs
+git pull
+npm run build
+pm2 restart nextjs
+```

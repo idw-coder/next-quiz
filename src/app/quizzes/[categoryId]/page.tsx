@@ -1,3 +1,6 @@
+"use client";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import {
     Box,
     TableContainer,
@@ -11,41 +14,53 @@ import {
   } from "@mui/material";
   import { ArrowBackIosNew } from "@mui/icons-material";
   import Link from "next/link";
+  import { quizRepository, QuizCategory, Quiz } from "@/lib/quiz.repository";
   
-  interface Category {
-    id: number;
-    category_name: string;
-  }
-  
-  interface Quiz {
-    id: number;
-    category_id: number;
-    question: string;
-  }
-  
-  const categories: Category[] = [
-    { id: 1, category_name: "JavaScript基礎" },
-    { id: 2, category_name: "React基礎" },
-  ];
-  
-  const quizzes: Quiz[] = [
-    { id: 1, category_id: 1, question: "変数を宣言するキーワードは？" },
-    { id: 2, category_id: 1, question: "配列の長さを取得するプロパティは？" },
-    { id: 3, category_id: 1, question: "console.log()の役割は？" },
-    { id: 4, category_id: 2, question: "ステート管理のフックは？" },
-    { id: 5, category_id: 2, question: "JSXで変数を埋め込む記法は？" },
-    { id: 6, category_id: 2, question: "コンポーネントに値を渡す仕組みは？" },
-  ];
-  
-  type Params = Promise<{ categoryId: string }>;
-  
-  export default async function QuizListPage({ params }: { params: Params }) {
-    const { categoryId } = await params;
-    const category = categories.find((c) => c.id === Number(categoryId));
-    const categoryQuizzes = quizzes.filter((q) => q.category_id === Number(categoryId));
-  
-    if (!category) {
-      return <div>カテゴリが見つかりません</div>;
+  export default function QuizListPage() {
+    const params = useParams();
+    const categoryId = params.categoryId as string;
+    const [category, setCategory] = useState<QuizCategory | null>(null);
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          const categories = await quizRepository.findAllCategory();
+          /**
+           * find()メソッドは、配列の要素を検索して最初に見つかった要素を返すメソッド
+           */
+          const foundCategory = categories.find((category) => category.id === Number(categoryId));
+          
+          if (!foundCategory) {
+            setError("カテゴリが見つかりません");
+            return;
+          }
+
+          setCategory(foundCategory);
+
+          const categoryQuizzes = await quizRepository.listByCategory(Number(categoryId));
+          setQuizzes(categoryQuizzes);
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : "データの取得に失敗しました"
+          );
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    }, [categoryId]);
+
+    if (loading) {
+      return <div>読み込み中...</div>;
+    }
+
+    if (error || !category) {
+      return <div>{error || "カテゴリが見つかりません"}</div>;
     }
   
     return (
@@ -96,7 +111,7 @@ import {
               </TableRow>
             </TableHead>
             <TableBody sx={{ "& .MuiTableCell-root": { textAlign: "center" } }}>
-              {categoryQuizzes.map((quiz, index) => (
+              {quizzes.map((quiz, index) => (
                 <TableRow
                   key={quiz.id}
                   sx={{

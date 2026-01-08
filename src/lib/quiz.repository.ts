@@ -17,9 +17,20 @@ export interface QuizCategory {
     description: string
 }
 
+export interface Quiz {
+    id: number
+    category_id: number
+    question: string
+    explanation: string
+}
+
 export const quizRepository = {
     findAllCategory: async (): Promise<QuizCategory[]> => {
         const { data } = await api.get('/quiz-categories')
+        return data
+    },
+    listByCategory: async (categoryId: number): Promise<Quiz[]> => {
+        const { data } = await api.get(`/${categoryId}/quizzes`)
         return data
     }
 }
