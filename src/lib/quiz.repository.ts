@@ -24,6 +24,12 @@ export interface Quiz {
     explanation: string
 }
 
+export interface Choice {
+    id: number
+    choice_text: string
+    is_correct: boolean
+}
+
 export const quizRepository = {
     findAllCategory: async (): Promise<QuizCategory[]> => {
         const { data } = await api.get('/quiz-categories')
@@ -31,6 +37,10 @@ export const quizRepository = {
     },
     listByCategory: async (categoryId: number): Promise<Quiz[]> => {
         const { data } = await api.get(`/${categoryId}/quizzes`)
+        return data
+    },
+    listByQuiz: async (quizId: number): Promise<Choice[]> => {
+        const { data } = await api.get(`/${quizId}/choices`)
         return data
     }
 }

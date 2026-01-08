@@ -5,14 +5,7 @@ import { Box, Typography, Paper, Button } from "@mui/material";
 import { ArrowBackIosNew } from "@mui/icons-material";
 import Link from "next/link";
 import AnswerForm from "./AnswerForm";
-import { quizRepository, Quiz } from "@/lib/quiz.repository";
-
-interface Choice {
-  id: number;
-  quiz_id: number;
-  choice_text: string;
-  is_correct: boolean;
-}
+import { quizRepository, Quiz, Choice } from "@/lib/quiz.repository";
 
 export default function QuizPage() {
   const params = useParams();
@@ -36,9 +29,9 @@ export default function QuizPage() {
         }
 
         setQuiz(foundQuiz);
-        // TODO: 選択肢を取得するAPIが実装されたら、ここで取得する
-        // 現時点では空の配列を設定
-        setQuizChoices([]);
+        
+        const choices = await quizRepository.listByQuiz(Number(quizId));
+        setQuizChoices(choices);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "問題の取得に失敗しました"
