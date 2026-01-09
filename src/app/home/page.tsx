@@ -22,6 +22,7 @@ import {
   PlayArrow,
 } from "@mui/icons-material";
 import { quizRepository } from "@/lib/quiz.repository";
+import GoogleAdSense from "@/components/GoogleAdSense";
 
 interface QuizCategory {
   id: number;
@@ -216,6 +217,11 @@ export default function Home() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Googleアドセンス */}
+      <Box sx={{  }}>
+        <GoogleAdSense />
+      </Box>
     </Box>
   );
 }
