@@ -24,7 +24,7 @@ jobs:
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           envs: BRANCH
           script: |
-            cd /home/ec2-user/nextjs
+            cd /var/www/nextjs
             
             echo "Deploying branch: $BRANCH"
             
@@ -36,5 +36,3 @@ jobs:
             npm run build
             
             pm2 restart nextjs
-            
-            echo "Deployment completed successfully!"
