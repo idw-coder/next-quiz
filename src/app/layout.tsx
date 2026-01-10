@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Script from "next/script";
+import GoogleAdSense from "@/components/GoogleAdSense";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,22 +43,31 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+        }}
       >
         <Header />
         <main
           style={{
+            flex: "1",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             maxWidth: "1000px",
             margin: "0 auto",
-            minHeight: "calc(100vh - 48px - 1.2rem)",
+            // minHeight: "calc(100vh - 48px - 1.2rem)",
             padding: "1rem",
           }}
         >
           {children}
         </main>
+        <footer>
+          <GoogleAdSense />
+        </footer>
       </body>
     </html>
   );

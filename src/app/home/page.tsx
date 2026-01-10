@@ -217,11 +217,6 @@ export default function Home() {
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Googleアドセンス */}
-      <Box sx={{  }}>
-        <GoogleAdSense />
-      </Box>
     </Box>
   );
 }
