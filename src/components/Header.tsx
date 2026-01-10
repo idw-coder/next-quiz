@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 
 export default function Header() {
     const router = useRouter()
-    const { isAuthenticated, loading, logout, profileImageUrl } = useAuth()
+    const { isAuthenticated, loading, logout, profileImageUrl, user } = useAuth()
     const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null)
     const isUserMenuOpen = Boolean(userMenuAnchor)
 
@@ -52,9 +52,14 @@ export default function Header() {
           </a>
         </div>
         <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', fontSize: '14px' }}>
-          <a href="/users" style={{ textDecoration: 'none', color: 'inherit' }}>
-            ユーザー一覧
+          <a href="/home" style={{ textDecoration: 'none', color: 'inherit' }}>
+              問題集一覧
           </a>
+          {loading ? null : user?.role === 'admin' && (
+            <a href="/users" style={{ textDecoration: 'none', color: 'inherit' }}>
+              ユーザー一覧
+            </a>
+          )}
           {loading ? null : isAuthenticated ? (
             <>
               <div

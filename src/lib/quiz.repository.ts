@@ -15,6 +15,10 @@ export interface QuizCategory {
     id: number
     category_name: string
     description: string
+    author_id: number
+    created_at: string
+    updated_at: string
+    deleted_at?: string | null
 }
 
 export interface Quiz {
