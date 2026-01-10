@@ -1,0 +1,40 @@
+name: Deploy to Lightsail
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Lightsail
+        uses: appleboy/ssh-action@v1.0.3 # AppleBoy製のSSH接続アクション
+        env:
+          BRANCH: ${{ github.ref_name }}
+        with:
+          host: 18.177.141.112
+          username: ec2-user
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          envs: BRANCH
+          script: |
+            cd /home/ec2-user/nextjs
+            
+            echo "Deploying branch: $BRANCH"
+            
+            sudo git fetch origin
+            sudo git checkout $BRANCH
+            sudo git pull origin $BRANCH
+            
+            npm install
+            npm run build
+            
+            pm2 restart nextjs
+            
+            echo "Deployment completed successfully!"

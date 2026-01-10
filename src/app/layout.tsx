@@ -29,10 +29,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
   return (
     <html lang="en">
       <head>
-        {clientId && (
+        {clientId && !isDevelopment && (
           <Script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`}
@@ -48,6 +50,7 @@ export default function RootLayout({
           flexDirection: "column",
           minHeight: "100vh",
         }}
+        suppressHydrationWarning
       >
         <Header />
         <main

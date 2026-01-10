@@ -25,6 +25,10 @@ export default function GoogleAdSense({
     className,
 }: GoogleAdSenseProps) {
 
+    if (process.env.NODE_ENV === 'development') {
+        return null;
+    }
+
     useEffect(() => {
         try {
             // adsbygoogleの初期化

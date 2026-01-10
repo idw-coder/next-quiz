@@ -77,3 +77,23 @@ git pull
 npm run build
 pm2 restart nextjs
 ```
+
+## git action CI/CD
+
+ssh鍵の生成
+```bash
+ssh-keygen -t ed25519 -C "github-actions" -f ~/.ssh/github-actions
+```
+
+公開鍵をauthorized_keysに追加
+```bash
+cat ~/.ssh/github-actions.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+```
+
+秘密鍵をGithubに登録
+```bash
+cat ~/.ssh/github-actions
+```
+
+.github/workflows/deploy.ymlを作成
