@@ -65,7 +65,14 @@ export default function RootLayout({
         >
           {children}
         </main>
-        <footer>
+        <footer
+          style={{
+            maxWidth: "1000px",
+            margin: "0 auto",
+            padding: "1rem",
+            width: "100%",
+          }}
+        >
           <GoogleAdSense />
         </footer>
       </body>
