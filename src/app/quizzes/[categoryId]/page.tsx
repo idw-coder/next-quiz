@@ -65,39 +65,37 @@ import {
   
     return (
       <Box sx={{ width: "100%" }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-          <h2>{category.category_name}</h2>
-          <Link href="/home">
+        <Link href="/home">
             <Button
-              variant="text"
-              startIcon={<ArrowBackIosNew fontSize="small" />}
-              sx={{
+            variant="text"
+            startIcon={<ArrowBackIosNew fontSize="small" />}
+            sx={{
                 alignSelf: "flex-start",
                 "& .MuiButton-startIcon": {
-                  backgroundColor: "currentColor",
-                  borderRadius: "50%",
-                  padding: "4px",
-                  marginRight: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  "& svg": {
+                backgroundColor: "currentColor",
+                borderRadius: "50%",
+                padding: "4px",
+                marginRight: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                "& svg": {
                     color: "white",
                     fontSize: "10px",
-                  },
                 },
-              }}
+                },
+            }}
             >
-              ホームに戻る
+            ホームに戻る
             </Button>
-          </Link>
-        </Box>
+        </Link>
+        <h2 style={{textAlign: "center", marginBottom: "1rem"}}>{category.category_name}</h2>
         <TableContainer component={Paper}>
           <Table
             sx={{
-              minWidth: 650,
+            //   minWidth: 650,
               "& .MuiTableCell-root": {
-                fontSize: "12px",
+                fontSize: "clamp(8px, 2.5vw, 12px)",
                 padding: "0.2rem 0.4rem",
               },
             }}
@@ -123,7 +121,7 @@ import {
                   <TableCell>
                     <Link href={`/quizzes/${categoryId}/${quiz.id}`}>
                       <Button variant="outlined" size="small"
-                      sx={{ padding: "0", fontSize: "12px"}}>
+                      sx={{ padding: "0", fontSize: "clamp(8px, 2vw, 12px)"}}>
                         解く
                       </Button>
                     </Link>

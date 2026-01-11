@@ -103,9 +103,9 @@ export default function Home() {
       <TableContainer component={Paper}>
         <Table
           sx={{
-            minWidth: 650,
+            // minWidth: 650,
             "& .MuiTableCell-root": {
-              fontSize: "12px",
+              fontSize: "clamp(8px, 2.5vw, 12px)",
               padding: "0.2rem 0.4rem",
             },
           }}
@@ -128,7 +128,9 @@ export default function Home() {
               )}
             </TableRow>
           </TableHead>
-          <TableBody sx={{ "& .MuiTableCell-root": { textAlign: "center" } }}>
+          <TableBody sx={{ "& .MuiTableCell-root": { 
+            textAlign: "left"
+            } }}>
             {categories.map((category) => (
               <TableRow
                 key={category.id}
@@ -147,7 +149,7 @@ export default function Home() {
                     size="small"
                     variant="contained"
                     onClick={() => router.push(`/quizzes/${category.id}`)}
-                    sx={{ fontSize: '10px', padding: '0.2rem' }}
+                    sx={{ fontSize: 'clamp(8px, 2vw, 12px)', padding: '0.2rem' }}
                   >
                     開始
                   </Button>

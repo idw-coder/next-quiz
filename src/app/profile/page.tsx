@@ -11,6 +11,7 @@ function ProfileContent() {
         name: '',
         email: '',
     })
+    const [role, setRole] = useState<string | undefined>(undefined)
     const [profileImage, setProfileImage] = useState<string | null>(null)
     const [passwordData, setPasswordData] = useState({
         current_password: '',
@@ -27,6 +28,7 @@ function ProfileContent() {
         const fetchProfile = async () => {
             try {
                 const data = await userRepository.getProfile()
+                setRole(data.role)
                 setFormData({ name: data.name, email: data.email })
                 setProfileImage(data.profile_image || null)
             } catch (error) {
@@ -167,6 +169,11 @@ function ProfileContent() {
           {/* プロフィール情報更新フォーム */}
           <form onSubmit={handleProfileSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <h3 style={{ textAlign: 'center', margin: '0' }}>プロフィール情報</h3>
+            {role && (
+              <div>
+                <p style={{ margin: '0', fontSize: '12px', textAlign: 'center', background: '#eee' }}>{role}</p>
+              </div>
+            )}
             <div>
               <label htmlFor="name">名前</label>
               <input

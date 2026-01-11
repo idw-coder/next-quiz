@@ -1,85 +1,91 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Box, Button, Radio, RadioGroup, FormControlLabel, Alert, Typography } from '@mui/material'
+import { useState } from "react";
 
 interface Choice {
-  id: number
-  choice_text: string
-  is_correct: boolean
+  id: number;
+  choice_text: string;
+  is_correct: boolean;
 }
 
 interface Props {
-  choices: Choice[]
-  explanation: string
+  choices: Choice[];
+  explanation: string;
 }
 
 export default function AnswerForm({ choices, explanation }: Props) {
-  const [selectedId, setSelectedId] = useState<number | null>(null)
-  const [submitted, setSubmitted] = useState(false)
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
-  const selectedChoice = choices.find((choice) => choice.id === selectedId)
-  const isCorrect = selectedChoice?.is_correct || false
+  const selectedChoice = choices.find((choice) => choice.id === selectedId);
+  const isCorrect = selectedChoice?.is_correct || false;
 
   const handleSubmit = () => {
-    if (selectedId === null) return
-    setSubmitted(true)
-  }
+    if (selectedId === null) return;
+    setSubmitted(true);
+  };
 
   return (
-    <Box>
-      <RadioGroup
-        value={selectedId}
-        onChange={(e) => setSelectedId(Number(e.target.value))}
-        sx={{
-          '& .MuiFormControlLabel-label': {
-            fontSize: '12px',
-          },
-        }}
-      >
-        {choices.map((choice) => (
-          <FormControlLabel
-            key={choice.id}
-            value={choice.id}
-            control={<Radio size="small" />}
-            label={choice.choice_text}
-            disabled={submitted}
-            sx={{ mb: 1 }}
-          />
-        ))}
-      </RadioGroup>
+    <div>
+      <div className="flex flex-col gap-2">
+        {choices.map((choice) => {
+          const isChoiceCorrect = submitted && choice.is_correct;
+          const isChoiceIncorrect = submitted && !choice.is_correct && selectedId === choice.id;
+
+          return (
+            <label
+              key={choice.id}
+              className={`flex items-center gap-2 p-2 text-xs ${
+                submitted ? "cursor-default" : "cursor-pointer"
+              }`}
+            >
+              <input
+                type="radio"
+                name="answer"
+                value={choice.id}
+                checked={selectedId === choice.id}
+                onChange={(e) => setSelectedId(Number(e.target.value))}
+                disabled={submitted}
+                className={`${submitted ? "cursor-default" : "cursor-pointer"} ${
+                  isChoiceCorrect ? "accent-green-700" : ""
+                } ${isChoiceIncorrect ? "accent-red-600" : ""}`}
+              />
+              <span
+                className={`${isChoiceCorrect ? "font-semibold text-green-700" : ""} ${
+                  isChoiceIncorrect ? "text-red-600" : ""
+                }`}
+              >
+                {choice.choice_text}
+              </span>
+            </label>
+          );
+        })}
+      </div>
 
       {submitted && (
-        <Alert 
-          severity={isCorrect ? 'success' : 'error'} 
-          sx={{ 
-            my: 2,
-            '& .MuiAlert-message': {
-              fontSize: '14px',
-            },
-          }}
+        <div
+          className={`my-4 rounded p-3 text-sm ${
+            isCorrect
+              ? "border border-green-200 bg-green-50 text-green-800"
+              : "border border-red-200 bg-red-50 text-red-800"
+          }`}
         >
-          <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
-            {isCorrect ? '正解！' : '不正解...'}
-          </Typography>
-          <Box sx={{ mt: 1, fontSize: '12px' }}>{explanation}</Box>
-        </Alert>
+          <p className="mb-2 text-sm font-medium">
+            {isCorrect ? "正解！" : "不正解..."}
+          </p>
+          <p className="text-xs">{explanation}</p>
+        </div>
       )}
 
       {!submitted && (
-        <Button
-          variant="contained"
+        <button
           onClick={handleSubmit}
           disabled={selectedId === null}
-          sx={{ 
-            mt: 2,
-            fontSize: '12px',
-            padding: '0.4rem 1rem',
-          }}
+          className="mt-4 rounded bg-blue-600 px-4 py-1.5 text-xs text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
         >
           回答する
-        </Button>
+        </button>
       )}
-    </Box>
-  )
+    </div>
+  );
 }
