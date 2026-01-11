@@ -1,22 +1,13 @@
 import type { Metadata } from "next";
-import axios from "axios";
+import { quizRepository } from "@/lib/quiz.repository";
 
 type Props = {
   params: { categoryId: string; quizId: string };
 };
 
-type Quiz = {
-  id: number;
-  category_id: number;
-  question: string;
-  explanation: string;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-    const { data: quizzes } = await axios.get<Quiz[]>(`${API_BASE_URL}/${params.categoryId}/quizzes`);
-    
+    const quizzes = await quizRepository.listByCategory(Number(params.categoryId));  
     const quiz = quizzes.find((quiz) => quiz.id === Number(params.quizId));
 
     if (quiz) {

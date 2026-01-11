@@ -4,9 +4,11 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 const api = axios.create({ baseURL: API_BASE_URL })
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('sanctum_token')
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
+    if (typeof window !== ('undefined')) { // ブラウザでのみlocalStorageにアクセスするように
+        const token = localStorage.getItem('sanctum_token')
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
     }
     return config
 })
@@ -34,17 +36,26 @@ export interface Choice {
     is_correct: boolean
 }
 
+export interface QuizWithChoices {
+    quiz: Quiz
+    choices: Choice[]
+}
+
 export const quizRepository = {
     findAllCategory: async (): Promise<QuizCategory[]> => {
-        const { data } = await api.get('/quiz-categories')
+        const { data } = await api.get('/quiz/categories')
         return data
     },
     listByCategory: async (categoryId: number): Promise<Quiz[]> => {
-        const { data } = await api.get(`/${categoryId}/quizzes`)
+        const { data } = await api.get(`/quiz/category_${categoryId}/quizzes`)
         return data
     },
     listByQuiz: async (quizId: number): Promise<Choice[]> => {
-        const { data } = await api.get(`/${quizId}/choices`)
+        const { data } = await api.get(`/quiz/quiz_${quizId}/choices`)
+        return data
+    },
+    getQuizWithChoices: async (quizId: number): Promise<QuizWithChoices> => {
+        const { data } = await api.get(`/quiz/quiz_${quizId}`)
         return data
     }
 }

@@ -15,7 +15,7 @@ type Category = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-    const { data: categories } = await axios.get<Category[]>(`${API_BASE_URL}/quiz-categories`);
+    const { data: categories } = await axios.get<Category[]>(`${API_BASE_URL}/quiz/categories`);
     
     const category = categories.find((category) => category.id === Number(params.categoryId));
 
