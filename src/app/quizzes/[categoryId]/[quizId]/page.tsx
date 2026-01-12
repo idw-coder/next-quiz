@@ -1,49 +1,34 @@
 "use client";
-import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import AnswerForm from "./AnswerForm";
-import { quizRepository, Quiz, Choice } from "@/lib/quiz.repository";
+import { quizRepository } from "@/lib/quiz.repository";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
 
 export default function QuizPage() {
   const params = useParams();
   const categoryId = params.categoryId as string;
   const quizId = params.quizId as string;
-  const [quiz, setQuiz] = useState<Quiz | null>(null);
-  const [quizChoices, setQuizChoices] = useState<Choice[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['quiz', quizId],
+    queryFn: () => quizRepository.getQuizWithChoices(Number(quizId)),
+  })
 
   const hasEditorOrMore = user?.role ? ['admin', 'author', 'moderator'].includes(user.role) : false;
 
-  useEffect(() => {
-    const fetchQuiz = async () => {
-      try {
-        setLoading(true);
-        const { quiz, choices } = await quizRepository.getQuizWithChoices(Number(quizId));
-        setQuiz(quiz);
-        setQuizChoices(choices);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "問題の取得に失敗しました"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuiz();
-  }, [quizId]);
-
-  if (loading) {
+  if (isLoading) {
     return <div className="p-4">読み込み中...</div>;
   }
 
-  if (error || !quiz) {
-    return <div className="p-4 text-red-600">{error || "問題が見つかりません"}</div>;
+  if (error || !data) {
+    return <div className="p-4 text-red-600">
+      {error instanceof Error ? error.message : "問題が見つかりません"}</div>;
   }
+
+  const { quiz, choices } = data;
 
   return (
     <div className="w-full">
@@ -84,7 +69,7 @@ export default function QuizPage() {
         <h2 className="text-base font-medium mb-4 text-gray-900">
           {quiz.question}
         </h2>
-        <AnswerForm choices={quizChoices} explanation={quiz.explanation} />
+        <AnswerForm choices={choices} explanation={quiz.explanation} />
       </div>
     </div>
   );

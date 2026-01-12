@@ -23,6 +23,7 @@ import {
 } from "@mui/icons-material";
 import { quizRepository } from "@/lib/quiz.repository";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from '@tanstack/react-query'
 
 interface QuizCategory {
   id: number;
@@ -35,35 +36,41 @@ interface QuizCategory {
 }
 
 export default function Home() {
-  const [categories, setCategories] = useState<QuizCategory[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // const [categories, setCategories] = useState<QuizCategory[]>([]);
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useAuth();
 
   const hasEditorOrMore = user?.role ? ['admin', 'author', 'moderator'].includes(user.role) : false;
 
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      const categories = await quizRepository.findAllCategory();
-      setCategories(categories);
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "問題カテゴリーの取得に失敗しました"
-      )
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchCategories = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const categories = await quizRepository.findAllCategory();
+  //     setCategories(categories);
+  //   } catch (error) {
+  //     setError(
+  //       error instanceof Error ? error.message : "問題カテゴリーの取得に失敗しました"
+  //     )
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // TODO
+  const { data: categories = [], isLoading: loading, error } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => quizRepository.findAllCategory(),
+  });
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString();
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  // useEffect(() => {
+  //   fetchCategories();
+  // }, []);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("問題カテゴリーを削除してもよろしいですか？")) {
@@ -83,7 +90,7 @@ export default function Home() {
     return <div>Loading...</div>;
   }
   if (error) {
-    return <div>{error}</div>;
+    return <div>{error instanceof Error ? error.message : " データの取得に失敗しました"}</div>; // TODO
   }
 
   return (

@@ -5,43 +5,77 @@ import { Button } from '@mui/material'
 import { AccountCircle } from '@mui/icons-material'
 import { userRepository, getUserImageUrl } from '@/lib/user.repository'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 function ProfileContent() {
+    const queryClient = useQueryClient()
     const [formData, setFormData] = useState({
         name: '',
         email: '',
     })
-    const [role, setRole] = useState<string | undefined>(undefined)
-    const [profileImage, setProfileImage] = useState<string | null>(null)
     const [passwordData, setPasswordData] = useState({
         current_password: '',
         new_password: '',
     })
-    const [status, setStatus] = useState({
-        loading: false,
-        success: false,
-        error: false,
-        message: '',
+
+    const { data: profile, isLoading } = useQuery({
+        queryKey: ['profile'],
+        queryFn: userRepository.getProfile,
     })
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const data = await userRepository.getProfile()
-                setRole(data.role)
-                setFormData({ name: data.name, email: data.email })
-                setProfileImage(data.profile_image || null)
-            } catch (error) {
-                /**
-                 * errorオブジェクトはunknown型ですがError型として扱えるように
-                 * 「instanceof」を使用
-                 */
-                const errorMessage = error instanceof Error ? error.message : 'ユーザー情報の取得に失敗しました'
-                setStatus({ loading: false, success: false, error: true, message: errorMessage })
-            }
+        if (profile) {
+            setFormData({ name: profile.name, email: profile.email })
         }
-        fetchProfile()
-    }, [])
+    }, [profile])
+
+    const updateProfileMutation = useMutation({
+        mutationFn: userRepository.updateProfile,
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['profile'] }) // TODO
+            alert(data.message || 'プロフィール更新しました')
+        },
+        onError: (error) => {
+            const errorMessage = error instanceof Error ? error.message : 'プロフィールの更新に失敗しました'
+            alert(errorMessage)
+        }
+    })
+
+    const updatePasswordMutation = useMutation({
+        mutationFn: userRepository.updatePassword,
+        onSuccess: (data) => {
+            alert(data.message || 'パスワードを更新しました')
+            setPasswordData({ current_password: '', new_password: '' })
+        },
+        onError: (error) => {
+            const errorMessage = error instanceof Error ? error.message : 'パスワードのの更新に失敗しました'
+            alert(errorMessage)
+        }
+    })
+
+    const uploadImageMutation = useMutation({
+        mutationFn: userRepository.uploadProfileImage,
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['profile'] }) // TODO
+            alert(data.message || 'プロフィール画像を更新しました')
+        },
+        onError: (error) => {
+            const errorMessage = error instanceof Error ? error.message : 'プロフィール画像の更新に失敗しました'
+            alert(errorMessage)
+        }
+    })
+
+    const deleteImageMutation = useMutation({
+      mutationFn: userRepository.deleteProfileImage,
+      onSuccess: (data) => {
+          queryClient.invalidateQueries({ queryKey: ['profile'] }) // TODO
+          alert(data.message || 'プロフィール画像を削除しました')
+      },
+      onError: (error) => {
+          const errorMessage = error instanceof Error ? error.message : 'プロフィール画像の削除に失敗しました'
+          alert(errorMessage)
+      }
+  })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData((prev) => ({...prev, [e.target.id]: e.target.value }))
@@ -56,14 +90,7 @@ function ProfileContent() {
         if (!window.confirm('プロフィールを更新してもよろしいですか？')) {
             return
         }
-        setStatus({ loading: true, success: false, error: false, message: '' })
-        try {
-            const data = await userRepository.updateProfile(formData)
-            setStatus({ loading: false, success: true, error: false, message: data.message || 'プロフィールを更新しました' })
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'プロフィールの更新に失敗しました'
-            setStatus({ loading: false, success: false, error: true, message: errorMessage })
-        }
+        updateProfileMutation.mutate(formData) // TODO
     }
 
     const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -71,15 +98,7 @@ function ProfileContent() {
         if (!window.confirm('パスワードを更新してもよろしいですか？')) {
             return
         }
-        setStatus({ loading: true, success: false, error: false, message: '' })
-        try {
-            const data = await userRepository.updatePassword(passwordData)
-            setStatus({ loading: false, success: true, error: false, message: data.message || 'パスワードを更新しました' })
-            setPasswordData({ current_password: '', new_password: '' })
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'パスワードの更新に失敗しました'
-            setStatus({ loading: false, success: false, error: true, message: errorMessage })
-        }
+        updatePasswordMutation.mutate(passwordData) // TODO
     }
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,16 +108,7 @@ function ProfileContent() {
             e.target.value = ''
             return
         }
-
-        setStatus({ loading: true, success: false, error: false, message: '' })
-        try {
-            const data = await userRepository.uploadProfileImage(file)
-            setStatus({ loading: false, success: true, error: false, message: data.message || 'プロフィール画像を更新しました' })
-            setProfileImage(data.profile_image || null)
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'プロフィール画像の更新に失敗しました'
-            setStatus({ loading: false, success: false, error: true, message: errorMessage })
-        }
+        uploadImageMutation.mutate(file) // TODO
     }
 
     
@@ -106,25 +116,26 @@ function ProfileContent() {
         if (!window.confirm('プロフィール画像を削除してもよろしいですか？この操作は取り消せません')) {
             return
         }
+        deleteImageMutation.mutate() // TODO
+    }
 
-        setStatus({ loading: true, success: false, error: false, message: '' })
-        try {
-            const data = await userRepository.deleteProfileImage()
-            setStatus({ loading: false, success: true, error: false, message: data.message || 'プロフィール画像を削除しました' })
-            setProfileImage(null)
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'プロフィール画像の削除に失敗しました'
-            setStatus({ loading: false, success: false, error: true, message: errorMessage })
-        }
+    const isAnyLoading = isLoading || 
+        updateProfileMutation.isPending || 
+        updatePasswordMutation.isPending || 
+        uploadImageMutation.isPending || 
+        deleteImageMutation.isPending
+
+    if (isLoading) {
+        return <div>読み込み中...</div>
     }
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '300px', fontSize: '12px' }}>
           {/* プロフィール画像セクション */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-            {profileImage ? (
+            {profile?.profile_image ? (
               <img
-                src={getUserImageUrl(profileImage) || ''}
+                src={getUserImageUrl(profile.profile_image) || ''}
                 alt="プロフィール画像"
                 style={{
                   width: '150px',
@@ -154,12 +165,12 @@ function ProfileContent() {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <label>
                 <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
-                <Button variant="outlined" size="small" component="span" disabled={status.loading}>
+                <Button variant="outlined" size="small" component="span" disabled={isAnyLoading}>
                   新しく画像をアップロード
                 </Button>
               </label>
-              {profileImage && (
-                <Button variant="outlined" color="error" size="small" onClick={handleImageDelete} disabled={status.loading}>
+              {profile?.profile_image && (
+                <Button variant="outlined" color="error" size="small" onClick={handleImageDelete} disabled={isAnyLoading}>
                   削除
                 </Button>
               )}
@@ -169,9 +180,9 @@ function ProfileContent() {
           {/* プロフィール情報更新フォーム */}
           <form onSubmit={handleProfileSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <h3 style={{ textAlign: 'center', margin: '0' }}>プロフィール情報</h3>
-            {role && (
+            {profile?.role && (
               <div>
-                <p style={{ margin: '0', fontSize: '12px', textAlign: 'center', background: '#eee' }}>{role}</p>
+                <p style={{ margin: '0', fontSize: '12px', textAlign: 'center', background: '#eee' }}>{profile.role}</p>
               </div>
             )}
             <div>
@@ -196,8 +207,8 @@ function ProfileContent() {
                 style={{ width: '100%', padding: '0.4rem 0.8rem', boxSizing: 'border-box' }}
               />
             </div>
-            <Button type="submit" variant="contained" size="small" disabled={status.loading}>
-              {status.loading ? '更新中...' : 'プロフィールを更新'}
+            <Button type="submit" variant="contained" size="small" disabled={isAnyLoading}>
+              {updateProfileMutation.isPending ? '更新中...' : 'プロフィールを更新'}
             </Button>
           </form>
     
@@ -227,14 +238,10 @@ function ProfileContent() {
                 style={{ width: '100%', padding: '0.4rem 0.8rem', boxSizing: 'border-box' }}
               />
             </div>
-            <Button type="submit" variant="contained" size="small" disabled={status.loading}>
-              {status.loading ? '更新中...' : 'パスワードを更新'}
+            <Button type="submit" variant="contained" size="small" disabled={isAnyLoading}>
+              {updatePasswordMutation.isPending ? '更新中...' : 'パスワードを更新'}
             </Button>
           </form>
-    
-          {/* ステータスメッセージ */}
-          {status.error && <p style={{ color: 'red' }}>{status.message}</p>}
-          {status.success && <p style={{ color: 'green' }}>{status.message}</p>}
         </div>
       )
     }

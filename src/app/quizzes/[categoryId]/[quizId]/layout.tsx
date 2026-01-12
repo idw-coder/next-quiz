@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ? quiz.question.substring(0, 50) + "..." 
         : quiz.question;
 
+      // TODO アプリ名、タイトル
       return {
         title: `${questionPreview} | Web開発者向けクイズ`,
         description: quiz.question,
