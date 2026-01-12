@@ -13,8 +13,7 @@ export default function Signin() {
   const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
     try {
-      const data = await authRepository.login({ email, password });
-      localStorage.setItem("sanctum_token", data.sanctum_token);
+      await authRepository.login({ email, password })
       router.push("/home");
     } catch (error) {
       alert("ログインに失敗しました");

@@ -14,16 +14,9 @@ export interface User {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const STORAGE_BASE_URL = process.env.NEXT_PUBLIC_STORAGE_URL
-const api = axios.create({baseURL: API_BASE_URL})
-
-
-// 認証ヘッダーを取得する処理を挟む
-api.interceptors.request.use((config) => {
-	const token = localStorage.getItem('sanctum_token')
-	if (token) {
-		config.headers.Authorization = `Bearer ${token}`
-	}
-	return config
+const api = axios.create({
+	baseURL: API_BASE_URL,
+	withCredentials: true
 })
 
 /**

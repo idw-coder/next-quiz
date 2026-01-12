@@ -12,24 +12,13 @@ export function useAuth() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const token = localStorage.getItem('sanctum_token')
-
-        if (!token) {
-            setIsAuthenticated(false)
-            setLoading(false)
-            return
-        }
-
-        setIsAuthenticated(true)
-
         const fetchProfile = async () => {
             try {
                 const data = await userRepository.getProfile()
                 setUser(data)
+                setIsAuthenticated(true)
             } catch (error) {
                 console.error('プロフィール取得エラー ', error)
-
-                localStorage.removeItem('sanctum_token') // TODO
                 setIsAuthenticated(false)
             } finally {
                 setLoading(false)
@@ -45,7 +34,6 @@ export function useAuth() {
         } catch (error) {
             console.error('ログアウトエラー ', error)
         }
-        localStorage.removeItem('sanctum_token')
         setIsAuthenticated(false)
         setUser(null)
         router.push('/signin')
