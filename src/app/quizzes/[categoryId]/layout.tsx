@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import axios from "axios";
-import { TwentyThreeMpTwoTone } from "@mui/icons-material";
 
 type Props = {
   params: { categoryId: string };
@@ -14,10 +13,11 @@ type Category = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
+    const { categoryId } = await params;
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const { data: categories } = await axios.get<Category[]>(`${API_BASE_URL}/quiz/categories`);
     
-    const category = categories.find((category) => category.id === Number(params.categoryId));
+    const category = categories.find((category) => category.id === Number(categoryId));
 
     if (category) {
       return {

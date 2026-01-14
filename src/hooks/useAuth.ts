@@ -13,6 +13,14 @@ export function useAuth() {
 
     useEffect(() => {
         const fetchProfile = async () => {
+
+            // const hasSession = document.cookie.includes('laravel_session')
+            // if (!hasSession) {
+            //     setIsAuthenticated(false)
+            //     setLoading(false)
+            //     return
+            // }
+
             try {
                 const data = await userRepository.getProfile()
                 setUser(data)

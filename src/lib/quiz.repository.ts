@@ -2,17 +2,6 @@ import axios from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 const api = axios.create({ baseURL: API_BASE_URL })
-
-api.interceptors.request.use((config) => {
-    if (typeof window !== ('undefined')) { // ブラウザでのみlocalStorageにアクセスするように
-        const token = localStorage.getItem('sanctum_token')
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`
-        }
-    }
-    return config
-})
-
 export interface QuizCategory {
     id: number
     category_name: string
