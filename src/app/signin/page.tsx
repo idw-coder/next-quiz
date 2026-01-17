@@ -21,7 +21,7 @@ export default function Signin() {
   };
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <p style={{ fontSize: "14px" }}>
         アカウントを持っていない場合は<Link href="/signup">新規登録</Link>から
       </p>
@@ -74,6 +74,6 @@ export default function Signin() {
           ログイン
         </Button>
       </form>
-    </>
+    </div>
   );
 }
