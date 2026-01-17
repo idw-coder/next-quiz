@@ -1,15 +1,38 @@
 import Link from "next/link";
 import { notFound } from "next/navigation"; //
 import { quizRepository } from "@/lib/quiz.repository";
+import { Metadata } from "next";
 
 type Props = {
   params: Promise<{ categoryId: string }>
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { categoryId } = await params;
+
+  try {
+    const categories = await quizRepository.findAllCategory();
+    const category = categories.find((c) => c.id === Number(categoryId));
+    if (category) {
+      return {
+        title: category.category_name,
+        description: category.description || `${category.category_name}のクイズ一覧`,
+      };
+    }
+  } catch (error) {
+    console.error("Failed to generate metadata ", error);
+  }
+
+  return {
+    title: "クイズ一覧",
+    description: "Web開発者向けクイズカテゴリー一覧ページ"
+  }
+}
+
 export default async function QuizListPage({ params }: Props) {
   const { categoryId } = await params // TODO
 
-  const [categories, quizzes] = await Promise.all([
+  const [categories, quizzes] = await Promise.all([ // 
     quizRepository.findAllCategory(),
     quizRepository.listByCategory(Number(categoryId)),
   ])
