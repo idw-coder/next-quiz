@@ -31,6 +31,7 @@ export default function RootLayout({
 }>) {
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
   const isDevelopment = process.env.NODE_ENV === "development";
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
     <html lang="en">
@@ -42,6 +43,29 @@ export default function RootLayout({
             strategy="afterInteractive"
             crossOrigin="anonymous"
           />
+        )}
+        {/* Google Analytics */}
+        {gaId && !isDevelopment && (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            />
+            <Script
+              id="gtag-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${gaId}', {
+                    page_path: window.location.pathname,
+                  });
+                `,
+              }}
+            />
+          </>
         )}
       </head>
       <body
@@ -60,9 +84,11 @@ export default function RootLayout({
               flex: "1",
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
+              // alignItems: "center",
+              alignItems: "stretch",
               justifyContent: "center",
               maxWidth: "1000px",
+              width: "100%",
               margin: "0 auto",
               // minHeight: "calc(100vh - 48px - 1.2rem)",
               padding: "1rem",

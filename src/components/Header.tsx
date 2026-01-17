@@ -48,7 +48,7 @@ export default function Header() {
       >
         <div>
           <a href="/home" style={{ textDecoration: 'none', color: 'inherit' }}>
-            ホーム
+            Web開発者向けクイズ
           </a>
         </div>
         <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', fontSize: '14px' }}>
