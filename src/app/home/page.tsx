@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { quizRepository } from "@/lib/quiz.repository";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from '@tanstack/react-query'
+import Link from "next/link";
 
 interface QuizCategory {
   id: number;
@@ -94,7 +95,7 @@ export default function Home() {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-6">
+    <div className="w-full max-w-5xl mx-auto">
       {hasEditorOrMore && (
         <div className="flex justify-end mb-4">
           <button
@@ -113,10 +114,10 @@ export default function Home() {
         >
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="p-1 text-center w-16">No</th>
-              <th className="p-1 text-left">カテゴリー名</th>
+              {/* <th className="p-1 text-center w-16">No.</th> */}
+              <th className="p-1 text-left">カテゴリー</th>
               <th className="p-1 text-left">説明</th>
-              <th className="p-1 text-center w-20">クイズ</th>
+              <th className="p-1 text-center w-20"></th>
               {hasEditorOrMore && (
                 <>
                   <th className="p-1 text-center">作成日時</th>
@@ -135,16 +136,17 @@ export default function Home() {
                   category.deleted_at ? "bg-gray-100" : ""
                 }`}
               >
-                <td className="p-1 text-center">{index + 1}</td>
+                {/* <td className="p-1 text-center">{index + 1}</td> */}
                 <td className="p-1">{category.category_name}</td>
                 <td className="p-1">{category.description}</td>
                 <td className="p-1 text-center">
-                  <button
-                    onClick={() => router.push(`/quizzes/${category.id}`)}
+                  <Link
+                    href={`/quizzes/${category.id}`}
                     className="px-2 py-1 text-xs border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                    prefetch={false}
                   >
                     開始
-                  </button>
+                  </Link>
                 </td>
 
                 {hasEditorOrMore && (

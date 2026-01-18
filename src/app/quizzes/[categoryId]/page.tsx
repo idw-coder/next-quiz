@@ -59,7 +59,7 @@ export default async function QuizListPage({ params, searchParams }: Props) {
   const startNumber = (currentPage - 1) * perPage + 1;
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-6">
+    <div className="w-full max-w-5xl mx-auto">
       <Link
         href="/home"
         className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6"
@@ -85,21 +85,21 @@ export default async function QuizListPage({ params, searchParams }: Props) {
             <tr>
               <th className="p-1 text-center w-16">No.</th>
               <th className="p-1 text-left">問題</th>
-              <th className="p-1 text-center w-20">操作</th>
+              <th className="p-1 text-center w-20"></th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {quizzes.map((quiz, index) => (
               <tr key={quiz.id} className="hover:bg-gray-50">
-                <td className="p-1 text-center">{startNumber + index + 1}</td>
+                <td className="p-1 text-center">{startNumber + index}</td>
                 <td className="p-1">{quiz.question}</td>
                 <td className="p-1 text-center">
                   <Link
                     href={`/quizzes/${categoryId}/${quiz.id}`}
-                    className="px-2 py-1 text-xs border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                    className="inline-block px-2 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
                     prefetch={false}
                   >
-                    解く
+                    解答
                   </Link>
                 </td>
               </tr>
