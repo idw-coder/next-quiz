@@ -91,7 +91,7 @@ export default async function QuizListPage({ params, searchParams }: Props) {
           <tbody className="divide-y">
             {quizzes.map((quiz, index) => (
               <tr key={quiz.id} className="hover:bg-gray-50">
-                <td className="px-3 py-1 text-center">{index + 1}</td>
+                <td className="px-3 py-1 text-center">{startNumber + index + 1}</td>
                 <td className="px-3 py-1">{quiz.question}</td>
                 <td className="px-3 py-1 text-center">
                   <Link
