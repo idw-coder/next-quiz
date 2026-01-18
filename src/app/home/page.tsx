@@ -99,7 +99,7 @@ export default function Home() {
         <div className="flex justify-end mb-4">
           <button
             onClick={() => router.push("/quiz-categories/create")}
-            className="inline-flex items-center gap-2 px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="inline-flex items-center gap-2 p-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             <AddIcon />
             問題カテゴリー新規登録
@@ -109,20 +109,20 @@ export default function Home() {
       <div className="border rounded-sm overflow-hidden">
         <table
           className="w-full"
-          style={{ fontSize: "clamp(8px, 2.5vw, 12px)" }}
+          style={{ fontSize: "clamp(10px, 3vw, 12px)" }}
         >
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-3 py-1 text-center w-16">No</th>
-              <th className="px-3 py-1 text-left">カテゴリー名</th>
-              <th className="px-3 py-1 text-left">説明</th>
-              <th className="px-3 py-1 text-center w-20">クイズ</th>
+              <th className="p-1 text-center w-16">No</th>
+              <th className="p-1 text-left">カテゴリー名</th>
+              <th className="p-1 text-left">説明</th>
+              <th className="p-1 text-center w-20">クイズ</th>
               {hasEditorOrMore && (
                 <>
-                  <th className="px-3 py-1 text-center">作成日時</th>
-                  <th className="px-3 py-1 text-center">更新日時</th>
-                  <th className="px-3 py-1 text-center">削除日時</th>
-                  <th className="px-3 py-1 text-center">操作</th>
+                  <th className="p-1 text-center">作成日時</th>
+                  <th className="p-1 text-center">更新日時</th>
+                  <th className="p-1 text-center">削除日時</th>
+                  <th className="p-1 text-center">操作</th>
                 </>
               )}
             </tr>
@@ -135,14 +135,13 @@ export default function Home() {
                   category.deleted_at ? "bg-gray-100" : ""
                 }`}
               >
-                <td className="px-3 py-1 text-center">{index + 1}</td>
-                <td className="px-3 py-1">{category.category_name}</td>
-                <td className="px-3 py-1">{category.description}</td>
-                <td className="px-3 py-1 text-center">
+                <td className="p-1 text-center">{index + 1}</td>
+                <td className="p-1">{category.category_name}</td>
+                <td className="p-1">{category.description}</td>
+                <td className="p-1 text-center">
                   <button
                     onClick={() => router.push(`/quizzes/${category.id}`)}
-                    className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                    style={{ fontSize: "clamp(8px, 2vw, 12px)" }}
+                    className="px-2 py-1 text-xs border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
                   >
                     開始
                   </button>
@@ -150,18 +149,18 @@ export default function Home() {
 
                 {hasEditorOrMore && (
                   <>
-                    <td className="px-3 py-1 text-center">
+                    <td className="p-1 text-center">
                       {formatDate(category.created_at)}
                     </td>
-                    <td className="px-3 py-1 text-center">
+                    <td className="p-1 text-center">
                       {formatDate(category.updated_at)}
                     </td>
-                    <td className="px-3 py-1 text-center">
+                    <td className="p-1 text-center">
                       {category.deleted_at
                         ? formatDate(category.deleted_at)
                         : "---"}
                     </td>
-                    <td className="px-3 py-1 text-center">
+                    <td className="p-1 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() =>

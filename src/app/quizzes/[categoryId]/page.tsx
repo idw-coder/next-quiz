@@ -83,20 +83,20 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         >
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-3 py-1 text-center w-16">No.</th>
-              <th className="px-3 py-1 text-left">問題</th>
-              <th className="px-3 py-1 text-center w-20">操作</th>
+              <th className="p-1 text-center w-16">No.</th>
+              <th className="p-1 text-left">問題</th>
+              <th className="p-1 text-center w-20">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {quizzes.map((quiz, index) => (
               <tr key={quiz.id} className="hover:bg-gray-50">
-                <td className="px-3 py-1 text-center">{startNumber + index + 1}</td>
-                <td className="px-3 py-1">{quiz.question}</td>
-                <td className="px-3 py-1 text-center">
+                <td className="p-1 text-center">{startNumber + index + 1}</td>
+                <td className="p-1">{quiz.question}</td>
+                <td className="p-1 text-center">
                   <Link
                     href={`/quizzes/${categoryId}/${quiz.id}`}
-                    className="px-3 py-1 text-xs border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                    className="px-2 py-1 text-xs border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
                     prefetch={false}
                   >
                     解く
