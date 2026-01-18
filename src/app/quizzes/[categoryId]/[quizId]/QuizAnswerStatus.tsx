@@ -39,7 +39,7 @@ export default function QuizAnswerStatus({ quizId }: Props) {
             {/* 正答率 */}
             <div className="flex items-center gap-1">
                 <span className="text-gray-500">正答率</span>
-                <span className="font-bold text-gray-700 min-w-6 text-right">{accuracyRate}%</span>
+                <span className="font-bold text-gray-700 min-w-8 text-right">{accuracyRate}%</span>
                 <span className="text-[10px] text-gray-400">({history.length}回)</span>
             </div>
         </div>
