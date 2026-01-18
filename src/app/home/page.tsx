@@ -46,6 +46,12 @@ export default function Home() {
   };
 
   // アイコンコンポーネント
+  const NoImageIcon = () => (
+    <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  );
+
   const AddIcon = () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -79,14 +85,14 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="w-full max-w-3xl mx-auto px-4 py-6">
+      <div className="w-full max-w-5xl mx-auto px-4 py-6">
         <div className="text-center text-gray-500">Loading...</div>
       </div>
     );
   }
   if (error) {
     return (
-      <div className="w-full max-w-3xl mx-auto px-4 py-6">
+      <div className="w-full max-w-5xl mx-auto px-4 py-6">
         <div className="text-center text-red-500">
           {error instanceof Error ? error.message : "データの取得に失敗しました"}
         </div>
@@ -95,118 +101,105 @@ export default function Home() {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto px-4">
       {hasEditorOrMore && (
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-6">
           <button
             onClick={() => router.push("/quiz-categories/create")}
-            className="inline-flex items-center gap-2 p-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm"
           >
             <AddIcon />
             問題カテゴリー新規登録
           </button>
         </div>
       )}
-      <div className="border rounded-sm overflow-hidden">
-        <table
-          className="w-full"
-          style={{ fontSize: "clamp(10px, 3vw, 12px)" }}
-        >
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              {/* <th className="p-1 text-center w-16">No.</th> */}
-              <th className="p-1 text-left">カテゴリー</th>
-              <th className="p-1 text-left">説明</th>
-              <th className="p-1 text-center w-20"></th>
-              {hasEditorOrMore && (
-                <>
-                  <th className="p-1 text-center">作成日時</th>
-                  <th className="p-1 text-center">更新日時</th>
-                  <th className="p-1 text-center">削除日時</th>
-                  <th className="p-1 text-center">操作</th>
-                </>
-              )}
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {categories.map((category, index) => (
-              <tr
-                key={category.id}
-                className={`hover:bg-gray-50 ${
-                  category.deleted_at ? "bg-gray-100" : ""
-                }`}
-              >
-                {/* <td className="p-1 text-center">{index + 1}</td> */}
-                <td className="p-1">{category.category_name}</td>
-                <td className="p-1">{category.description}</td>
-                <td className="p-1 text-center">
-                  <Link
-                    href={`/quizzes/${category.id}`}
-                    className="px-2 py-1 text-xs border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
-                    prefetch={false}
-                  >
-                    開始
-                  </Link>
-                </td>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categories.map((category) => (
+          <div
+            key={category.id}
+            className={`flex flex-col border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg ${
+              category.deleted_at ? "bg-gray-50 opacity-75 border-gray-200" : "bg-white border-gray-100 shadow-sm"
+            }`}
+          >
+            {/* サムネイルエリア */}
+            <div className="aspect-video bg-gray-50 flex items-center justify-center border-b border-gray-100">
+              <NoImageIcon />
+            </div>
+
+            {/* コンテンツエリア */}
+            <div className="p-5 flex flex-col flex-1">
+              <div className="mb-2">
+                <h3 className="font-bold text-lg text-gray-800 line-clamp-1">
+                  {category.category_name}
+                </h3>
+              </div>
+              
+              <p className="text-gray-600 text-sm line-clamp-2 mb-6 flex-1">
+                {category.description || "説明はありません。"}
+              </p>
+
+              <div className="flex items-center justify-between mt-auto">
+                <Link
+                  href={`/quizzes/${category.id}`}
+                  className="inline-flex items-center justify-center px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                  prefetch={false}
+                >
+                  開始
+                </Link>
 
                 {hasEditorOrMore && (
-                  <>
-                    <td className="p-1 text-center">
-                      {formatDate(category.created_at)}
-                    </td>
-                    <td className="p-1 text-center">
-                      {formatDate(category.updated_at)}
-                    </td>
-                    <td className="p-1 text-center">
-                      {category.deleted_at
-                        ? formatDate(category.deleted_at)
-                        : "---"}
-                    </td>
-                    <td className="p-1 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() =>
-                            router.push(`/quiz-categories/${category.id}`)
-                          }
-                          title="詳細"
-                          className="p-1 text-blue-500 hover:bg-blue-50 rounded"
-                        >
-                          <VisibilityIcon />
-                        </button>
-                        <button
-                          onClick={() =>
-                            router.push(`/quiz-categories/${category.id}/edit`)
-                          }
-                          title="編集"
-                          className="p-1 text-blue-500 hover:bg-blue-50 rounded"
-                        >
-                          <EditIcon />
-                        </button>
-                        {category.deleted_at ? (
-                          <button
-                            onClick={() => handleRestore(category.id)}
-                            title="復元"
-                            className="p-1 text-blue-400 hover:bg-blue-50 rounded"
-                          >
-                            <RestoreIcon />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleDelete(category.id)}
-                            title="削除"
-                            className="p-1 text-red-400 hover:bg-red-50 rounded"
-                          >
-                            <DeleteIcon />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => router.push(`/quiz-categories/${category.id}`)}
+                      title="詳細"
+                      className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <VisibilityIcon />
+                    </button>
+                    <button
+                      onClick={() => router.push(`/quiz-categories/${category.id}/edit`)}
+                      title="編集"
+                      className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <EditIcon />
+                    </button>
+                    {category.deleted_at ? (
+                      <button
+                        onClick={() => handleRestore(category.id)}
+                        title="復元"
+                        className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-colors"
+                      >
+                        <RestoreIcon />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDelete(category.id)}
+                        title="削除"
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <DeleteIcon />
+                      </button>
+                    )}
+                  </div>
                 )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </div>
+
+              {/* 管理者向けメタデータ */}
+              {hasEditorOrMore && (
+                <div className="mt-4 pt-4 border-t border-gray-100 text-[10px] text-gray-400 grid grid-cols-2 gap-y-1">
+                  <div>作成: {formatDate(category.created_at)}</div>
+                  <div>更新: {formatDate(category.updated_at)}</div>
+                  {category.deleted_at && (
+                    <div className="col-span-2 text-red-400">
+                      削除: {formatDate(category.deleted_at)}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

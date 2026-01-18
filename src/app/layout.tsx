@@ -18,10 +18,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Web開発者向けクイズ",
+    default: "Web開発者向けクイズ | 登録不要・完全無料のプログラミング学習・面接対策",
     template: "%s | Web開発者向けクイズ",
   },
-  description: "Web開発者向けクイズカテゴリー一覧ページ",
+  description: "エンジニアのための登録不要・完全無料クイズサイト。移動時間やスキマ時間に手軽にJavaScript, React, Next.jsなどの知識チェック。独学や面接対策に最適です。",
 };
 
 export default function RootLayout({

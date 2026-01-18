@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Menu, MenuItem } from '@mui/material'
-import { AccountCircle } from '@mui/icons-material'
+import { AccountCircle, Terminal } from '@mui/icons-material'
 import { useAuth } from '@/hooks/useAuth'
 
 
@@ -46,9 +46,13 @@ export default function Header() {
           padding: '0.6rem 1rem',
         }}
       >
-        <div>
-          <a href="/home" style={{ textDecoration: 'none', color: 'inherit' }}>
-            Web開発者向けクイズ
+        <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+          <a href="/home" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <Terminal sx={{ fontSize: '1.4rem', color: '#333' }} />
+            <span>Web開発者向けクイズ</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 'normal', color: '#666', borderLeft: '1px solid #ccc', paddingLeft: '0.5rem' }} className="hidden sm:inline">
+              完全無料・登録不要
+            </span>
           </a>
         </div>
         <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', fontSize: '14px' }}>
