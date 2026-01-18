@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation"; //
 import { quizRepository } from "@/lib/quiz.repository";
 import { Metadata } from "next";
+import Pagination from "./Pagination";
 
 type Props = {
-  params: Promise<{ categoryId: string }>
-}
+  params: Promise<{ categoryId: string }>;
+  searchParams: Promise<{ page?: string }>; //
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categoryId } = await params;
@@ -16,7 +18,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (category) {
       return {
         title: category.category_name,
-        description: category.description || `${category.category_name}のクイズ一覧`,
+        description:
+          category.description || `${category.category_name}のクイズ一覧`,
       };
     }
   } catch (error) {
@@ -25,23 +28,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: "クイズ一覧",
-    description: "Web開発者向けクイズカテゴリー一覧ページ"
-  }
+    description: "Web開発者向けクイズカテゴリー一覧ページ",
+  };
 }
 
-export default async function QuizListPage({ params }: Props) {
-  const { categoryId } = await params // TODO
+export default async function QuizListPage({ params, searchParams }: Props) {
+  const { categoryId } = await params; // TODO
+  const { page } = await searchParams;
 
-  const [categories, quizzes] = await Promise.all([ // 
+  const currentPage = Math.max(1, Number(page) || 1);
+  const perPage = 10; //
+
+  const [categories, paginatedQuizzes] = await Promise.all([
+    //
     quizRepository.findAllCategory(),
-    quizRepository.listByCategory(Number(categoryId)),
-  ])
+    quizRepository.listByCategory(Number(categoryId),
+    {
+      page: currentPage,
+      perPage,
+    }),
+  ]);
 
   const category = categories.find((cat) => cat.id === Number(categoryId));
 
   if (!category) {
-    notFound() //
+    notFound(); //
   }
+
+  const { data: quizzes, last_page, total } = paginatedQuizzes;
+  const startNumber = (currentPage - 1) * perPage + 1;
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-6">
@@ -56,8 +71,16 @@ export default async function QuizListPage({ params }: Props) {
         {category.category_name}
       </h2>
 
+      <p className="text-center text-sm text-gray-500 mb-6">
+        全{total}問中 {startNumber}〜
+        {Math.min(startNumber + perPage - 1, total)}問を表示
+      </p>
+
       <div className="border rounded-sm overflow-hidden">
-        <table className="w-full" style={{fontSize: "clamp(10px, 3vw, 12px)"}}>
+        <table
+          className="w-full"
+          style={{ fontSize: "clamp(10px, 3vw, 12px)" }}
+        >
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="px-3 py-1 text-center w-16">No.</th>
@@ -74,6 +97,7 @@ export default async function QuizListPage({ params }: Props) {
                   <Link
                     href={`/quizzes/${categoryId}/${quiz.id}`}
                     className="px-3 py-1 text-xs border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                    prefetch={false}
                   >
                     解く
                   </Link>
@@ -87,6 +111,12 @@ export default async function QuizListPage({ params }: Props) {
       {quizzes.length === 0 && (
         <p className="text-center text-gray-500 py-8">問題がありません</p>
       )}
+
+      <Pagination
+        currentPage={currentPage}
+        lastPage={last_page}
+        baseUrl={`/quizzes/${categoryId}`}
+      />
     </div>
-  )
+  );
 }

@@ -30,19 +30,46 @@ export interface QuizWithChoices {
     choices: Choice[]
 }
 
+export interface PagenatedQuizzes {
+    data: Quiz[]
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+}
+
+export interface PaginationParams {
+    page?: number
+    perPage?: number
+}
+
 export const quizRepository = {
     findAllCategory: async (): Promise<QuizCategory[]> => {
         const { data } = await api.get('/quiz/categories')
         return data
     },
-    listByCategory: async (categoryId: number): Promise<Quiz[]> => {
-        const { data } = await api.get(`/quiz/category_${categoryId}/quizzes`)
+
+    listByCategory: async (
+        categoryId: number,
+        params: PaginationParams = {}
+    ): Promise<PagenatedQuizzes> => {
+        const { page = 1, perPage = 10 } = params
+        const { data } = await api.get(
+            `/quiz/category_${categoryId}/quizzes`,
+        {
+            params: {
+                page,
+                per_page: perPage
+            }
+        })
         return data
     },
+
     listByQuiz: async (quizId: number): Promise<Choice[]> => {
         const { data } = await api.get(`/quiz/quiz_${quizId}/choices`)
         return data
     },
+
     getQuizWithChoices: async (quizId: number): Promise<QuizWithChoices> => {
         const { data } = await api.get(`/quiz/quiz_${quizId}`)
         return data
