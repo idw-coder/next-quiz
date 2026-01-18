@@ -19,6 +19,18 @@ const api = axios.create({
 	withCredentials: true
 })
 
+api.interceptors.request.use((config) => {
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('XSRF-TOKEN='))
+        ?.split('=')[1];
+    
+    if (token) {
+        config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
+    }
+    return config;
+});
+
 /**
  * 画像URLを取得
  */
@@ -69,8 +81,13 @@ export const userRepository = {
   // 管理者用 ユーザー管理操作
   // ============================================
 	findAll: async (): Promise<User[]> => {
-		const { data } = await api.get('/users')
-		return data
+		try {
+			const { data } = await api.get('/users')
+			return data
+		} catch (error) {
+			console.error(error)
+			throw error
+		}
 	},
 
 	findOne: async (id: number): Promise<User> => {
