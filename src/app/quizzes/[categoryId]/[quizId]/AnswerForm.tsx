@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuizHistory } from "@/hooks/useQuizHistory";
 import { useState } from "react";
 
 interface Choice {
@@ -9,13 +10,15 @@ interface Choice {
 }
 
 interface Props {
+  quizId: number;
   choices: Choice[];
   explanation: string;
 }
 
-export default function AnswerForm({ choices, explanation }: Props) {
+export default function AnswerForm({ quizId, choices, explanation }: Props) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const { addAnswer } = useQuizHistory();
 
   const selectedChoice = choices.find((choice) => choice.id === selectedId);
   const isCorrect = selectedChoice?.is_correct || false;
@@ -23,6 +26,7 @@ export default function AnswerForm({ choices, explanation }: Props) {
   const handleSubmit = () => {
     if (selectedId === null) return;
     setSubmitted(true);
+    addAnswer(quizId, isCorrect);
   };
 
   return (

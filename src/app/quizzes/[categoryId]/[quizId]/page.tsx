@@ -68,7 +68,7 @@ export default async function QuizPage({ params }: Props) {
           <h2 className="text-base font-medium mb-4 text-gray-900">
             {quiz.question}
           </h2>
-          <AnswerForm choices={choices} explanation={quiz.explanation} />
+          <AnswerForm quizId={quiz.id} choices={choices} explanation={quiz.explanation} />
         </div>
       </div>
     );

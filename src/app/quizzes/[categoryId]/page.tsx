@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"; //
 import { quizRepository } from "@/lib/quiz.repository";
 import { Metadata } from "next";
 import Pagination from "./Pagination";
+import QuizAnswerStatus from "./[quizId]/QuizAnswerStatus";
 
 type Props = {
   params: Promise<{ categoryId: string }>;
@@ -91,9 +92,14 @@ export default async function QuizListPage({ params, searchParams }: Props) {
           <tbody className="divide-y">
             {quizzes.map((quiz, index) => (
               <tr key={quiz.id} className="hover:bg-gray-50">
-                <td className="p-1 text-center">{startNumber + index}</td>
-                <td className="p-1">{quiz.question}</td>
-                <td className="p-1 text-center">
+                <td className="p-1 text-center align-middle">{startNumber + index}</td>
+                <td className="p-1 align-middle">
+                  <div className="flex justify-between items-center gap-4">
+                    <span>{quiz.question}</span>
+                    <QuizAnswerStatus quizId={quiz.id} />
+                  </div>
+                </td>
+                <td className="p-1 text-center align-middle">
                   <Link
                     href={`/quizzes/${categoryId}/${quiz.id}`}
                     className="inline-block px-2 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
