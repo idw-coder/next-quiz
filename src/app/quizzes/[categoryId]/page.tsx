@@ -84,9 +84,9 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         >
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="p-1 text-center w-16">No.</th>
+              <th className="p-1 text-center w-6">No.</th>
               <th className="p-1 text-left">問題</th>
-              <th className="p-1 text-center w-20"></th>
+              <th className="p-1 text-center w-14"></th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -94,7 +94,7 @@ export default async function QuizListPage({ params, searchParams }: Props) {
               <tr key={quiz.id} className="hover:bg-gray-50">
                 <td className="p-1 text-center align-middle">{startNumber + index}</td>
                 <td className="p-1 align-middle">
-                  <div className="flex justify-between items-center gap-4">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <span>{quiz.question}</span>
                     <QuizAnswerStatus quizId={quiz.id} />
                   </div>
