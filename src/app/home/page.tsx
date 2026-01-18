@@ -47,7 +47,7 @@ export default function Home() {
 
   // アイコンコンポーネント
   const NoImageIcon = () => (
-    <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="w-8 h-8 sm:w-12 sm:h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
   );
@@ -101,7 +101,7 @@ export default function Home() {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4">
+    <div className="w-full max-w-5xl mx-auto">
       {hasEditorOrMore && (
         <div className="flex justify-end mb-6">
           <button
@@ -118,49 +118,49 @@ export default function Home() {
         {categories.map((category) => (
           <div
             key={category.id}
-            className={`flex flex-col border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg ${
+            className={`flex flex-row sm:flex-col border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg ${
               category.deleted_at ? "bg-gray-50 opacity-75 border-gray-200" : "bg-white border-gray-100 shadow-sm"
             }`}
           >
             {/* サムネイルエリア */}
-            <div className="aspect-video bg-gray-50 flex items-center justify-center border-b border-gray-100">
+            <div className="w-24 sm:w-full aspect-square sm:aspect-video bg-gray-50 flex items-center justify-center border-r sm:border-r-0 sm:border-b border-gray-100 flex-shrink-0">
               <NoImageIcon />
             </div>
 
             {/* コンテンツエリア */}
-            <div className="p-5 flex flex-col flex-1">
-              <div className="mb-2">
-                <h3 className="font-bold text-lg text-gray-800 line-clamp-1">
+            <div className="p-3 sm:p-5 flex flex-col flex-1 min-w-0">
+              <div className="mb-1 sm:mb-2">
+                <h3 className="font-bold text-base sm:text-lg text-gray-800 line-clamp-1">
                   {category.category_name}
                 </h3>
               </div>
               
-              <p className="text-gray-600 text-sm line-clamp-2 mb-6 flex-1">
+              <p className="text-gray-600 text-xs sm:text-sm line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-6 flex-1">
                 {category.description || "説明はありません。"}
               </p>
 
-              <div className="flex items-center justify-between mt-auto">
+              <div className="flex items-center justify-between mt-auto gap-2">
                 <Link
                   href={`/quizzes/${category.id}`}
-                  className="inline-flex items-center justify-center px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                  className="inline-flex items-center justify-center px-4 sm:px-6 py-1.5 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
                   prefetch={false}
                 >
                   開始
                 </Link>
 
                 {hasEditorOrMore && (
-                  <div className="flex gap-1">
+                  <div className="flex gap-0.5 sm:gap-1">
                     <button
                       onClick={() => router.push(`/quiz-categories/${category.id}`)}
                       title="詳細"
-                      className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-1.5 sm:p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       <VisibilityIcon />
                     </button>
                     <button
                       onClick={() => router.push(`/quiz-categories/${category.id}/edit`)}
                       title="編集"
-                      className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-1.5 sm:p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                     >
                       <EditIcon />
                     </button>
@@ -168,7 +168,7 @@ export default function Home() {
                       <button
                         onClick={() => handleRestore(category.id)}
                         title="復元"
-                        className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-colors"
+                        className="p-1.5 sm:p-2 text-green-500 hover:bg-green-50 rounded-lg transition-colors"
                       >
                         <RestoreIcon />
                       </button>
@@ -176,7 +176,7 @@ export default function Home() {
                       <button
                         onClick={() => handleDelete(category.id)}
                         title="削除"
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 sm:p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <DeleteIcon />
                       </button>
@@ -187,7 +187,7 @@ export default function Home() {
 
               {/* 管理者向けメタデータ */}
               {hasEditorOrMore && (
-                <div className="mt-4 pt-4 border-t border-gray-100 text-[10px] text-gray-400 grid grid-cols-2 gap-y-1">
+                <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 text-[9px] sm:text-[10px] text-gray-400 grid grid-cols-2 gap-y-1">
                   <div>作成: {formatDate(category.created_at)}</div>
                   <div>更新: {formatDate(category.updated_at)}</div>
                   {category.deleted_at && (
