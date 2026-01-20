@@ -71,6 +71,9 @@ export default async function QuizListPage({ params, searchParams }: Props) {
       <h2 className="text-xl font-bold text-center mb-6">
         {category.category_name}
       </h2>
+      <p className="text-center text-sm text-gray-500 mb-6">
+        {category.description || "説明はありません。"}
+      </p>
 
       <p className="text-center text-sm text-gray-500 mb-6">
         全{total}問中 {startNumber}〜
