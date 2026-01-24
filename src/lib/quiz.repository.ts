@@ -73,5 +73,19 @@ export const quizRepository = {
     getQuizWithChoices: async (quizId: number): Promise<QuizWithChoices> => {
         const { data } = await api.get(`/quiz/quiz_${quizId}`)
         return data
+    },
+
+    getRandomQuizzes: async (
+        categoryId: number, count: number = 5, ids?:number[]
+    ): Promise<QuizWithChoices[]> => {
+        const params: { count: number; ids?: string } = { count };
+        if (ids && ids.length > 0) {
+            params.ids = ids.join(',');
+        }
+        const { data } = await api.get<{ quizzes : QuizWithChoices[] }>(
+            `/quiz/category_${categoryId}/random`, 
+            { params }
+        );
+        return data.quizzes;
     }
 }

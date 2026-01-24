@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 
 export interface QuizAnswer {
     quizId: number
+    categoryId: number
     isCorrect: boolean
     answeredAt: string
 }
@@ -55,9 +56,10 @@ export function useQuizHistory() {
         }
     }, [answers, loading])
 
-    const addAnswer = (quizId: number, isCorrect: boolean): void => {
+    const addAnswer = (quizId: number, categoryId: number, isCorrect: boolean): void => {
         const newAnswer: QuizAnswer = {
             quizId,
+            categoryId,
             isCorrect,
             answeredAt: new Date().toISOString(),
         }
@@ -79,12 +81,23 @@ export function useQuizHistory() {
         localStorage.removeItem(STORAGE_KEY)
     }
 
+    const getWrongQuizIdsByCategory = (categoryId: number): number[] => {
+        const latestByQuiz = new Map<number, QuizAnswer>();
+
+        answers.filter((a) => a.categoryId === categoryId)
+            .forEach((a) => latestByQuiz.set(a.quizId, a));
+
+        return Array.from(latestByQuiz.entries()).filter(([_, answer]) => !answer.isCorrect)
+            .map(([quizId, _]) => quizId); 
+    }
+
     return {
         answers,
         loading,
         addAnswer,
         getLatestAnswer,
         getAnswerHistory,
-        clearHistory
+        clearHistory,
+        getWrongQuizIdsByCategory
     }
 }

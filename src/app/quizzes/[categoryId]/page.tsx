@@ -4,6 +4,7 @@ import { quizRepository } from "@/lib/quiz.repository";
 import { Metadata } from "next";
 import Pagination from "./Pagination";
 import QuizAnswerStatus from "./[quizId]/QuizAnswerStatus";
+import QuizModeSelector from "./components/QuizModeSelector";
 
 type Props = {
   params: Promise<{ categoryId: string }>;
@@ -79,6 +80,12 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         全{total}問中 {startNumber}〜
         {Math.min(startNumber + perPage - 1, total)}問を表示
       </p>
+
+      <QuizModeSelector
+        categoryId={categoryId}
+        quizIds={quizzes.map((q) => q.id)}
+      />
+
 
       <div className="border rounded-sm overflow-hidden">
         <table

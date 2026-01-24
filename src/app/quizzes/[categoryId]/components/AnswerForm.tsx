@@ -11,11 +11,15 @@ interface Choice {
 
 interface Props {
   quizId: number;
+  categoryId: number
   choices: Choice[];
   explanation: string;
+  onAnswered?: (isCorrect: boolean) => void;
+  showNextButton?: boolean;
+  onNext?: () => void;
 }
 
-export default function AnswerForm({ quizId, choices, explanation }: Props) {
+export default function AnswerForm({ quizId, categoryId, choices, explanation, onAnswered, showNextButton, onNext }: Props) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const { addAnswer } = useQuizHistory();
@@ -26,7 +30,8 @@ export default function AnswerForm({ quizId, choices, explanation }: Props) {
   const handleSubmit = () => {
     if (selectedId === null) return;
     setSubmitted(true);
-    addAnswer(quizId, isCorrect);
+    addAnswer(quizId, categoryId, isCorrect);
+    onAnswered?.(isCorrect); //
   };
 
   return (
@@ -88,6 +93,15 @@ export default function AnswerForm({ quizId, choices, explanation }: Props) {
           className="mt-4 rounded bg-blue-600 px-4 py-1.5 text-xs text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
         >
           回答する
+        </button>
+      )}
+
+      {submitted && showNextButton && onNext && (
+        <button
+          onClick={onNext}
+          className="mt-4 rounded bg-blue-600 px-4 py-1.5 text-xs text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
+        >
+          次の問題へ
         </button>
       )}
     </div>

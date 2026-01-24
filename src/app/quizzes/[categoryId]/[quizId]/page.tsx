@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import AnswerForm from "./AnswerForm";
+import AnswerForm from "../components/AnswerForm";
 import EditButton from "./EditButton";
 import { quizRepository } from "@/lib/quiz.repository";
 import { Metadata } from "next";
@@ -68,7 +68,7 @@ export default async function QuizPage({ params }: Props) {
           <h2 className="text-base font-medium mb-4 text-gray-900">
             {quiz.question}
           </h2>
-          <AnswerForm quizId={quiz.id} choices={choices} explanation={quiz.explanation} />
+          <AnswerForm quizId={quiz.id} categoryId={Number(categoryId)} choices={choices} explanation={quiz.explanation} />
         </div>
       </div>
     );
