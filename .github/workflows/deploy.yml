@@ -30,25 +30,20 @@ jobs:
       # Standalone出力に必要なファイルをコピー
       - name: Prepare standalone files
         run: |
-          # publicフォルダをstandaloneにコピー
           cp -r public .next/standalone/public
-          # staticファイルをコピー
           cp -r .next/static .next/standalone/.next/static
 
-      # SSH鍵をセットアップ
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 18.177.141.112 >> ~/.ssh/known_hosts
-
-      # ビルド済みファイルをサーバーに転送
+      # ビルド済みファイルをサーバーに転送（appleboy/scp-action使用）
       - name: Deploy to server
-        run: |
-          rsync -avz --delete \
-            .next/standalone/ \
-            ec2-user@18.177.141.112:/var/www/nextjs/
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 18.177.141.112
+          username: ec2-user
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          source: ".next/standalone/*"
+          target: "/var/www/nextjs"
+          strip_components: 2
+          rm: true
 
       # PM2でアプリを再起動
       - name: Restart application
@@ -66,11 +61,9 @@ jobs:
             if pm2 list | grep -q "nextjs"; then
               pm2 restart nextjs
             else
-              # プロセスが存在しない場合は新規起動
               pm2 start server.js --name nextjs
               pm2 save
             fi
             
-            # 起動確認
             sleep 3
             pm2 status
