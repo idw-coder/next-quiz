@@ -81,10 +81,7 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         {Math.min(startNumber + perPage - 1, total)}問を表示
       </p>
 
-      <QuizModeSelector
-        categoryId={categoryId}
-        quizIds={quizzes.map((q) => q.id)}
-      />
+      <QuizModeSelector categoryId={categoryId} />
 
 
       <div className="border rounded-sm overflow-hidden">

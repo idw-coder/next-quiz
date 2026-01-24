@@ -7,32 +7,70 @@ on:
       - dev
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Lightsail
-        uses: appleboy/ssh-action@v1.0.3 # AppleBoy製のSSH接続アクション
-        env:
-          BRANCH: ${{ github.ref_name }}
+      # GitHub Actions上でビルド（サーバーのCPU負荷を軽減）
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js
+        run: npm run build
+
+      # Standalone出力に必要なファイルをコピー
+      - name: Prepare standalone files
+        run: |
+          # publicフォルダをstandaloneにコピー
+          cp -r public .next/standalone/public
+          # staticファイルをコピー
+          cp -r .next/static .next/standalone/.next/static
+
+      # SSH鍵をセットアップ
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 18.177.141.112 >> ~/.ssh/known_hosts
+
+      # ビルド済みファイルをサーバーに転送
+      - name: Deploy to server
+        run: |
+          rsync -avz --delete \
+            .next/standalone/ \
+            ec2-user@18.177.141.112:/var/www/nextjs/
+
+      # PM2でアプリを再起動
+      - name: Restart application
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: 18.177.141.112
           username: ec2-user
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-          envs: BRANCH
           script: |
             cd /var/www/nextjs
             
-            echo "Deploying branch: $BRANCH"
+            echo "Deploying branch: ${{ github.ref_name }}"
             
-            sudo git fetch origin
-            sudo git checkout $BRANCH
-            sudo git pull origin $BRANCH
+            # PM2でプロセスが存在するか確認
+            if pm2 list | grep -q "nextjs"; then
+              pm2 restart nextjs
+            else
+              # プロセスが存在しない場合は新規起動
+              pm2 start server.js --name nextjs
+              pm2 save
+            fi
             
-            npm install
-            npm run build
-            
-            pm2 restart nextjs
+            # 起動確認
+            sleep 3
+            pm2 status
