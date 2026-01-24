@@ -44,6 +44,8 @@ jobs:
           target: "/var/www/nextjs"
           strip_components: 2
           rm: true
+          timeout: 120s
+          command_timeout: 30m
 
       # PM2でアプリを再起動
       - name: Restart application
