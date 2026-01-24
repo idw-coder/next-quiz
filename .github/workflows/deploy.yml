@@ -1,4 +1,4 @@
-name: Deploy to Lightsail
+name: Build and Deploy to Lightsail
 
 on:
   push:
@@ -7,9 +7,15 @@ on:
       - dev
 
 jobs:
-  build-and-deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
-    
+    env:
+      SSH_USER: ec2-user
+      SSH_PORT: 22
+      DEPLOY_PATH: /var/www/nextjs
+      SSH_PRIVATE_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+      SSH_HOST: 18.177.141.112
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,7 +24,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -26,36 +31,40 @@ jobs:
       - name: Build Next.js
         run: npm run build
 
-      - name: Prepare standalone files
+      - name: Prepare artifact
         run: |
-          cp -r public .next/standalone/public
-          cp -r .next/static .next/standalone/.next/static
+          mkdir -p out_artifact
+          cp -ra .next/standalone/. out_artifact/
+          mkdir -p out_artifact/.next/static
+          cp -ra .next/static/. out_artifact/.next/static/
+          cp -r public out_artifact/public || true
+
+      - name: Setup SSH KEY
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: 18.177.141.112
-          username: ec2-user
-          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-          source: ".next/standalone/*"
-          target: "/var/www/nextjs"
-          strip_components: 2
-          rm: true
+        run: |
+          rsync -az --delete \
+            -e "ssh -p ${SSH_PORT} -i ~/.ssh/deploy_key" \
+            out_artifact/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
-      - name: Restart application
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 18.177.141.112
-          username: ec2-user
-          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-          script: |
-            cd /var/www/nextjs
-            
-            if pm2 list | grep -q "nextjs"; then
+      - name: Start server
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "
+            cd $DEPLOY_PATH
+            if pm2 list | grep -q 'nextjs'; then
               pm2 restart nextjs
             else
               pm2 start server.js --name nextjs
               pm2 save
             fi
-            
             pm2 status
+          "
+
+      - name: Delete key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
