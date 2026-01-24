@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone", // GitHub Actionsでビルドしてサーバーに転送するため
+  /* config options here */
 };
 
 export default nextConfig;

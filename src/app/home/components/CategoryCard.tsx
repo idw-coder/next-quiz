@@ -64,7 +64,7 @@ export default function CategoryCard({
 //   );
 
   return (
-    <Card className={category.deleted_at ? "opacity-75 bg-gray-50" : ""}>
+    <Card className={`pt-0 ${category.deleted_at ? "opacity-75 bg-gray-50" : ""}`}>
       <div className="w-24 sm:w-full aspect-square sm:aspect-video bg-gray-50 flex items-center justify-center border-r sm:border-r-0 sm:border-b border-gray-100 flex-shrink-0">
         <Image className="w-12 h-12 text-gray-300" strokeWidth={1.5} />
       </div>

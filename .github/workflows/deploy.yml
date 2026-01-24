@@ -7,65 +7,24 @@ on:
       - dev
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # GitHub Actions上でビルド（サーバーのCPU負荷を軽減）
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Next.js
-        run: npm run build
-
-      # Standalone出力に必要なファイルをコピー
-      - name: Prepare standalone files
-        run: |
-          cp -r public .next/standalone/public
-          cp -r .next/static .next/standalone/.next/static
-
-      # ビルド済みファイルをサーバーに転送（appleboy/scp-action使用）
-      - name: Deploy to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: 18.177.141.112
-          username: ec2-user
-          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-          source: ".next/standalone/*"
-          target: "/var/www/nextjs"
-          strip_components: 2
-          rm: true
-          timeout: 120s
-          command_timeout: 30m
-
-      # PM2でアプリを再起動
-      - name: Restart application
+      # SSH接続テストのみ（ビルドなし）
+      - name: Test SSH connection
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: 18.177.141.112
           username: ec2-user
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
-            cd /var/www/nextjs
-            
-            echo "Deploying branch: ${{ github.ref_name }}"
-            
-            # PM2でプロセスが存在するか確認
-            if pm2 list | grep -q "nextjs"; then
-              pm2 restart nextjs
-            else
-              pm2 start server.js --name nextjs
-              pm2 save
-            fi
-            
-            sleep 3
-            pm2 status
+            echo "=== SSH Connection Test ==="
+            whoami
+            pwd
+            echo "=== Server Status ==="
+            pm2 status || echo "PM2 not running"
+            echo "=== Test Complete ==="
