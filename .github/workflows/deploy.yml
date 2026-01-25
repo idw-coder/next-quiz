@@ -47,7 +47,7 @@ jobs:
 
       - name: Build Next.js
         env:
-          NEXT_PUBLIC_API_URL: https://know-api.bizlabo.site
+          NEXT_PUBLIC_API_URL: https://know-api.bizlabo.site/api
         run: npm run build
 
       - name: Prepare artifact
