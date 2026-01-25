@@ -122,9 +122,9 @@ jobs:
           ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "
             cd $DEPLOY_PATH
             if pm2 list | grep -q 'nextjs'; then
-              pm2 restart nextjs
+              HOSTNAME=0.0.0.0 PORT=3000 pm2 restart nextjs --update-env
             else
-              pm2 start server.js --name nextjs
+              HOSTNAME=0.0.0.0 PORT=3000 pm2 start server.js --name nextjs
               pm2 save
             fi
             pm2 status
