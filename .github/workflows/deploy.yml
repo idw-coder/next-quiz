@@ -11,53 +11,50 @@ jobs:
   # SSH接続テスト
   # プランアップグレード後にGitHub ActionsからのSSH接続が可能か確認
   # ============================================================
-  ssh_test:
+  # ssh_test:
+  #   runs-on: ubuntu-latest
+  #   
+  #   steps:
+  #     - name: Check connectivity
+  #       run: |
+  #         echo "=== Ping test ==="
+  #         ping -c 3 13.158.210.195 || echo "Ping failed"
+  #         
+  #         echo "=== NC port test ==="
+  #         nc -zv -w 30 13.158.210.195 22 || echo "Port 22 not reachable"
+  #         
+  #         echo "=== Traceroute ==="
+  #         traceroute -m 15 13.158.210.195 || echo "Traceroute failed"
+
+# ============================================================
+# 以下はビルドとSSHデプロイ処理
+# ============================================================
+
+  build_and_deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Check connectivity
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Prepare artifact
         run: |
-          echo "=== Ping test ==="
-          ping -c 3 13.158.210.195 || echo "Ping failed"
-          
-          echo "=== NC port test ==="
-          nc -zv -w 30 13.158.210.195 22 || echo "Port 22 not reachable"
-          
-          echo "=== Traceroute ==="
-          traceroute -m 15 13.158.210.195 || echo "Traceroute failed"
-
-# ============================================================
-# 以下はビルドとGitHub Releasesへのアップロード処理
-# SSH接続が確認できたら本来のSSHデプロイに切り替える
-# ============================================================
-
-# build_and_deploy:
-#   runs-on: ubuntu-latest
-#   permissions:
-#     contents: write
-
-#   steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v4
-
-#     - name: Setup Node.js
-#       uses: actions/setup-node@v4
-#       with:
-#         node-version: '20'
-
-#     - name: Install dependencies
-#       run: npm ci
-
-#     - name: Build Next.js
-#       run: npm run build
-
-#     - name: Prepare artifact
-#       run: |
-#         mkdir -p out_artifact
-#         cp -ra .next/standalone/. out_artifact/
-#         mkdir -p out_artifact/.next/static
-#         cp -ra .next/static/. out_artifact/.next/static/
-#         cp -r public out_artifact/public || true
+          mkdir -p out_artifact
+          cp -ra .next/standalone/. out_artifact/
+          mkdir -p out_artifact/.next/static
+          cp -ra .next/static/. out_artifact/.next/static/
+          cp -r public out_artifact/public || true
 
 # ============================================================
 # 2026年1月24日 ネットワーク問題の暫定対応
@@ -68,6 +65,8 @@ jobs:
 # 
 # 暫定対応としてGitHub Releasesにビルド成果物をアップロードし
 # サーバー側からダウンロードする方式に変更
+# 
+# 2026年1月24日 プランアップグレード後に解決したためSSHデプロイに復帰
 # ============================================================
 
 #     - name: Create release archive
@@ -87,51 +86,50 @@ jobs:
 
 # ============================================================
 # 以下は本来のSSH接続によるデプロイ処理
-# ネットワーク問題が解決したら以下のコメントを外して使用する
 # ============================================================
 
-# - name: Setup SSH KEY
-#   env:
-#     SSH_USER: ec2-user
-#     SSH_PORT: 22
-#     DEPLOY_PATH: /var/www/nextjs
-#     SSH_PRIVATE_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-#     SSH_HOST: 13.158.210.195
-#   run: |
-#     install -m 700 -d ~/.ssh
-#     echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
-#     chmod 600 ~/.ssh/deploy_key
-#     ssh-keyscan -T 60 -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts || echo "ssh-keyscan failed, continuing anyway"
+      - name: Setup SSH KEY
+        env:
+          SSH_USER: ec2-user
+          SSH_PORT: 22
+          DEPLOY_PATH: /var/www/nextjs
+          SSH_PRIVATE_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          SSH_HOST: 13.158.210.195
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -T 60 -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts || echo "ssh-keyscan failed, continuing anyway"
 
-# - name: Deploy to server
-#   env:
-#     SSH_USER: ec2-user
-#     SSH_PORT: 22
-#     DEPLOY_PATH: /var/www/nextjs
-#     SSH_HOST: 13.158.210.195
-#   run: |
-#     rsync -az --delete \
-#       -e "ssh -p ${SSH_PORT} -i ~/.ssh/deploy_key" \
-#       out_artifact/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+      - name: Deploy to server
+        env:
+          SSH_USER: ec2-user
+          SSH_PORT: 22
+          DEPLOY_PATH: /var/www/nextjs
+          SSH_HOST: 13.158.210.195
+        run: |
+          rsync -az --delete \
+            -e "ssh -p ${SSH_PORT} -i ~/.ssh/deploy_key" \
+            out_artifact/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
-# - name: Start server
-#   env:
-#     SSH_USER: ec2-user
-#     SSH_PORT: 22
-#     DEPLOY_PATH: /var/www/nextjs
-#     SSH_HOST: 13.158.210.195
-#   run: |
-#     ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "
-#       cd $DEPLOY_PATH
-#       if pm2 list | grep -q 'nextjs'; then
-#         pm2 restart nextjs
-#       else
-#         pm2 start server.js --name nextjs
-#         pm2 save
-#       fi
-#       pm2 status
-#     "
+      - name: Start server
+        env:
+          SSH_USER: ec2-user
+          SSH_PORT: 22
+          DEPLOY_PATH: /var/www/nextjs
+          SSH_HOST: 13.158.210.195
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "
+            cd $DEPLOY_PATH
+            if pm2 list | grep -q 'nextjs'; then
+              pm2 restart nextjs
+            else
+              pm2 start server.js --name nextjs
+              pm2 save
+            fi
+            pm2 status
+          "
 
-# - name: Delete key
-#   if: always()
-#   run: rm -f ~/.ssh/deploy_key
+      - name: Delete key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
