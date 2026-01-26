@@ -38,7 +38,7 @@ export default function CategoryCard({
     <Card className={`pt-0 pb-0 gap-0 overflow-hidden ${category.deleted_at ? "opacity-75 bg-gray-50" : ""}`}>
       <div className="flex flex-row sm:flex-col">
         {/* 画像エリア：スマホは左側固定幅、デスクトップは上部全幅 */}
-        <div className="w-20 h-20 sm:w-full sm:h-40 bg-gray-50 flex items-center justify-center border-r sm:border-r-0 sm:border-b border-gray-100 flex-shrink-0 overflow-hidden">
+        <div className="w-28 h-28 sm:w-full sm:h-40 bg-gray-50 flex items-center justify-center border-r sm:border-r-0 sm:border-b border-gray-100 flex-shrink-0 overflow-hidden">
           {category.thumbnail_url ? (
             <img src={category.thumbnail_url} alt={category.category_name} className="w-full h-full object-cover" />
           ) : (
@@ -57,7 +57,7 @@ export default function CategoryCard({
 
           <CardContent className="py-0 sm:py-2">
             <div className="flex items-center justify-between gap-2">
-              <Button size="sm" className="h-7 sm:h-9 text-xs sm:text-sm" onClick={() => router.push(`/quizzes/${category.id}`)}>
+              <Button size="xs" className="text-xs" onClick={() => router.push(`/quizzes/${category.id}`)}>
                 開始
               </Button>
 
