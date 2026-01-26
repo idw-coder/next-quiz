@@ -43,6 +43,15 @@ export interface PaginationParams {
     perPage?: number
 }
 
+export interface QuizTag {
+    id: number
+    slug: string
+    tag_name: string
+    author_id: number
+    created_at: string
+    updated_at: string
+}
+
 export const quizRepository = {
     findAllCategory: async (): Promise<QuizCategory[]> => {
         const { data } = await api.get('/quiz/categories')
@@ -76,16 +85,29 @@ export const quizRepository = {
     },
 
     getRandomQuizzes: async (
-        categoryId: number, count: number = 5, ids?:number[]
+        categoryId: number, count: number = 5, ids?:number[], tagIds?:number[]
     ): Promise<QuizWithChoices[]> => {
-        const params: { count: number; ids?: string } = { count };
+        const params: { count: number; ids?: string; tag_ids?: string } = { count };
         if (ids && ids.length > 0) {
             params.ids = ids.join(',');
+        }
+        if (tagIds && tagIds.length > 0) {
+            params.tag_ids = tagIds.join(',');
         }
         const { data } = await api.get<{ quizzes : QuizWithChoices[] }>(
             `/quiz/category_${categoryId}/random`, 
             { params }
         );
         return data.quizzes;
-    }
+    },
+
+    fetchTags: async (): Promise<QuizTag[]> => {
+        const { data } = await api.get('/quiz/tags')
+        return data
+    },
+
+    fetchTagsByCategory: async (categoryId: number): Promise<QuizTag[]> => {
+        const { data } = await api.get(`/quiz/category_${categoryId}/tags`)
+        return data
+    },
 }

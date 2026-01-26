@@ -21,21 +21,21 @@ export default function RandomQuizPage({
     searchParams,
 }: {
     params: Promise<{ categoryId: string }>;
-    searchParams: Promise<{ ids?: string }>;
+    searchParams: Promise<{ ids?: string; tag_ids?: string }>;
 }) {
     const { categoryId } = use(params); // TODO
-    const { ids } = use(searchParams); //
+    const { ids, tag_ids } = use(searchParams); //
     const categoryIdNum = Number(categoryId);
 
     const idArray = ids ? ids.split(",").map(Number) : undefined;
-
+    const tagIdArray = tag_ids ? tag_ids.split(",").map(Number) : undefined;
     const [currentIndex, setCurrentIndex] = useState(0);
     const [results, setResults] = useState<Result[]>([]);
     const [phase, setPhase] = useState<Phase>("playing");
 
     const { data: quizzes, isLoading, error } = useQuery({
-        queryKey: ["randomQuizzes", categoryIdNum, ids], //
-        queryFn: () => quizRepository.getRandomQuizzes(categoryIdNum, 5, idArray),
+        queryKey: ["randomQuizzes", categoryIdNum, ids, tag_ids], //
+        queryFn: () => quizRepository.getRandomQuizzes(categoryIdNum, 5, idArray, tagIdArray),
     });
 
     const handleAnswered = (isCorrect: boolean) => { //
