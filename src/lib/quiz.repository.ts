@@ -6,6 +6,8 @@ export interface QuizCategory {
     id: number
     category_name: string
     description: string
+    thumbnail_path?: string | null
+    thumbnail_url?: string | null
     author_id: number
     created_at: string
     updated_at: string
@@ -55,6 +57,33 @@ export interface QuizTag {
 export const quizRepository = {
     findAllCategory: async (): Promise<QuizCategory[]> => {
         const { data } = await api.get('/quiz/categories')
+        return data
+    },
+
+
+    findCategory: async (id: number): Promise<QuizCategory> => {
+        const { data } = await api.get(`/quiz/categories/${id}`)
+        return data
+    },
+
+    updateCategory: async (
+        id: number,
+        params: {
+            category_name: string
+            description: string
+            thumbnail?: File | null
+        }
+    ): Promise<QuizCategory> => {
+        const formData = new FormData()
+        formData.append('category_name', params.category_name)
+        formData.append('description', params.description)
+        if (params.thumbnail) {
+            formData.append('thumbnail', params.thumbnail)
+        }
+
+        const { data } = await api.post(`/quiz/categories/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        })
         return data
     },
 

@@ -1,15 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+/* eslint-disable @next/next/no-img-element */
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Image, Eye, Pencil, RotateCcw, Trash2 } from "lucide-react";
+import { Image as ImageIcon, Eye, Pencil, RotateCcw, Trash2 } from "lucide-react";
 
 interface CategoryCardProps {
     category: {
         id: number;
         category_name: string;
         description: string;
+        thumbnail_path?: string | null;
+        thumbnail_url?: string | null;
         deleted_at?: string | null;
         created_at: string;
         updated_at: string;
@@ -35,8 +38,12 @@ export default function CategoryCard({
     <Card className={`pt-0 pb-0 gap-0 overflow-hidden ${category.deleted_at ? "opacity-75 bg-gray-50" : ""}`}>
       <div className="flex flex-row sm:flex-col">
         {/* 画像エリア：スマホは左側固定幅、デスクトップは上部全幅 */}
-        <div className="w-20 sm:w-full sm:aspect-video bg-gray-50 flex items-center justify-center border-r sm:border-r-0 sm:border-b border-gray-100 flex-shrink-0">
-          <Image className="w-8 h-8 sm:w-12 sm:h-12 text-gray-300" strokeWidth={1.5} />
+        <div className="w-20 h-20 sm:w-full sm:h-40 bg-gray-50 flex items-center justify-center border-r sm:border-r-0 sm:border-b border-gray-100 flex-shrink-0 overflow-hidden">
+          {category.thumbnail_url ? (
+            <img src={category.thumbnail_url} alt={category.category_name} className="w-full h-full object-cover" />
+          ) : (
+            <ImageIcon className="w-8 h-8 sm:w-12 sm:h-12 text-gray-300" strokeWidth={1.5} />
+          )}
         </div>
 
         {/* コンテンツエリア：スマホは右側、デスクトップは下部 */}
