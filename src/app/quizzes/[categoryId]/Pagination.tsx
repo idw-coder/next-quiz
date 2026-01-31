@@ -6,10 +6,20 @@ interface Props {
     currentPage: number;
     lastPage: number;
     baseUrl: string;
+    tagIds?: string;
 }
 
-export default function Pagination({ currentPage, lastPage, baseUrl }: Props) {
+export default function Pagination({ currentPage, lastPage, baseUrl, tagIds }: Props) {
     if (lastPage <= 1) return null;
+
+    const buildUrl = (page: number) => {
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        if (tagIds) {
+            params.set("tag_ids", tagIds);
+        }
+        return `${baseUrl}?${params.toString()}`;
+    };
   
     // 表示するページ番号を計算
     const getPageNumbers = (): (number | string)[] => {
@@ -51,7 +61,7 @@ export default function Pagination({ currentPage, lastPage, baseUrl }: Props) {
         {/* 前へボタン */}
         {currentPage > 1 ? (
           <Link
-            href={`${baseUrl}?page=${currentPage - 1}`}
+            href={buildUrl(currentPage - 1)}
             className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
             prefetch={false}
           >
@@ -72,7 +82,7 @@ export default function Pagination({ currentPage, lastPage, baseUrl }: Props) {
           ) : (
             <Link
               key={page}
-              href={`${baseUrl}?page=${page}`}
+              href={buildUrl(page as number)}
               className={`px-3 py-1 text-xs border rounded ${
                 currentPage === page
                   ? "bg-blue-500 text-white border-blue-500"
@@ -88,7 +98,7 @@ export default function Pagination({ currentPage, lastPage, baseUrl }: Props) {
         {/* 次へボタン */}
         {currentPage < lastPage ? (
           <Link
-            href={`${baseUrl}?page=${currentPage + 1}`}
+            href={buildUrl(currentPage + 1)}
             className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100"
             prefetch={false}
           >

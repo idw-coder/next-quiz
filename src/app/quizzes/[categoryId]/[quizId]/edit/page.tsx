@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { quizRepository, Quiz, Choice } from "@/lib/quiz.repository";
+import { quizRepository, Quiz, Choice, QuizTag } from "@/lib/quiz.repository";
 
 export default function QuizEditPage() {
   const params = useParams();
@@ -17,18 +17,24 @@ export default function QuizEditPage() {
 
   const [question, setQuestion] = useState("");
   const [explanation, setExplanation] = useState("");
+  const [existingTags, setExistingTags] = useState<QuizTag[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
         setLoading(true);
-        const { quiz, choices } = await quizRepository.getQuizWithChoices(
+        const { quiz, choices, tags } = await quizRepository.getQuizWithChoices(
           Number(quizId)
         );
         setQuiz(quiz);
         setChoices(choices);
         setQuestion(quiz.question);
         setExplanation(quiz.explanation);
+        setSelectedTagIds(tags ? tags.map(t => t.id) : []);
+
+        const categoryTags = await quizRepository.fetchTags();
+        setExistingTags(categoryTags);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "問題の取得に失敗しました"
@@ -51,11 +57,22 @@ export default function QuizEditPage() {
     setChoices(newChoices);
   };
 
+  const  handleTagToggle = (tagId: number) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId]
+      );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: API実装後に保存処理を追加
-    console.log({ question, explanation, choices });
-    alert("保存機能は未実装です");
+    try {
+      await quizRepository.setQuizTagRelations(Number(quizId), selectedTagIds);
+      alert("保存しました");
+    } catch (err) {
+      alert("保存に失敗しました");
+    }
   };
 
   if (loading) {
@@ -155,6 +172,34 @@ export default function QuizEditPage() {
                   </div>
                 ))}
               </div>
+
+              {existingTags.length > 0 && (
+                <div>
+                  <label className="block font-medium text-gray-700 mb-2">
+                    タグ
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {existingTags.map((tag) => (
+                      <label
+                        key={tag.id}
+                        className={`flex items-center gap-1 px-2 py-1 border rounded cursor-pointer ${
+                          selectedTagIds.includes(tag.id)
+                            ? "bg-blue-100 border-blue-500"
+                            : "bg-gray-50 border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedTagIds.includes(tag.id)}
+                          onChange={() => handleTagToggle(tag.id)}
+                          className="h-3 w-3"
+                        />
+                        <span>{tag.tag_name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

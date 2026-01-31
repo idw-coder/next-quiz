@@ -86,7 +86,7 @@ export default function RootLayout({
               flexDirection: "column",
               // alignItems: "center",
               alignItems: "stretch",
-              justifyContent: "center",
+              justifyContent: "start",
               maxWidth: "1000px",
               width: "100%",
               margin: "0 auto",

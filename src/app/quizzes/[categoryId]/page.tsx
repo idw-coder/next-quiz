@@ -8,7 +8,7 @@ import QuizModeSelector from "./components/QuizModeSelector";
 
 type Props = {
   params: Promise<{ categoryId: string }>;
-  searchParams: Promise<{ page?: string }>; //
+  searchParams: Promise<{ page?: string; tag_ids?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -35,19 +35,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function QuizListPage({ params, searchParams }: Props) {
-  const { categoryId } = await params; // TODO
-  const { page } = await searchParams;
+  const { categoryId } = await params;
+  const { page, tag_ids } = await searchParams;
 
   const currentPage = Math.max(1, Number(page) || 1);
-  const perPage = 10; //
+  const perPage = 10;
+  const tagIds = tag_ids ? tag_ids.split(",").map(Number) : undefined;
 
   const [categories, paginatedQuizzes] = await Promise.all([
-    //
     quizRepository.findAllCategory(),
-    quizRepository.listByCategory(Number(categoryId),
-    {
+    quizRepository.listByCategory(Number(categoryId), {
       page: currentPage,
       perPage,
+      tag_ids: tagIds,
     }),
   ]);
 
@@ -129,6 +129,7 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         currentPage={currentPage}
         lastPage={last_page}
         baseUrl={`/quizzes/${categoryId}`}
+        tagIds={tag_ids}
       />
     </div>
   );

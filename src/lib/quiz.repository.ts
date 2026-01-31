@@ -30,6 +30,7 @@ export interface Choice {
 export interface QuizWithChoices {
     quiz: Quiz
     choices: Choice[]
+    tags?: QuizTag[]
 }
 
 export interface PagenatedQuizzes {
@@ -89,15 +90,16 @@ export const quizRepository = {
 
     listByCategory: async (
         categoryId: number,
-        params: PaginationParams = {}
+        params: PaginationParams & { tag_ids?: number[] } = {}
     ): Promise<PagenatedQuizzes> => {
-        const { page = 1, perPage = 10 } = params
+        const { page = 1, perPage = 10, tag_ids } = params
         const { data } = await api.get(
             `/quiz/category_${categoryId}/quizzes`,
         {
             params: {
                 page,
-                per_page: perPage
+                per_page: perPage,
+                tag_ids: tag_ids?.length ? tag_ids.join(',') : undefined,
             }
         })
         return data
@@ -138,5 +140,23 @@ export const quizRepository = {
     fetchTagsByCategory: async (categoryId: number): Promise<QuizTag[]> => {
         const { data } = await api.get(`/quiz/category_${categoryId}/tags`)
         return data
+    },
+
+    setQuizTagRelations: async (quizId: number, tagIds: number[]): Promise<void> => {
+        await api.post(`/quiz/quiz_${quizId}/tags`, { tag_ids: tagIds })
+    },
+
+    createTag: async (params: { tag_name: string; slug: string }): Promise<QuizTag> => {
+        const { data } = await api.post('/quiz/tags', params)
+        return data
+    },
+    
+    updateTag: async (id: number, params: { tag_name: string; slug: string }): Promise<QuizTag> => {
+        const { data } = await api.post(`/quiz/tags/${id}`, params)
+        return data
+    },
+    
+    deleteTag: async (id: number): Promise<void> => {
+        await api.post(`/quiz/tags/${id}/delete`)
     },
 }
