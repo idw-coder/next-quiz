@@ -22,7 +22,7 @@ export default function Signup() {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px' }}>
           <p style={{ fontSize: '14px' }}>
             既にアカウントを持っている場合は<Link href="/signin">ログイン</Link>から
           </p>

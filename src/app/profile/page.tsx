@@ -130,7 +130,7 @@ function ProfileContent() {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '300px', fontSize: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '300px', fontSize: '12px', margin: '2rem auto' }}>
           {/* プロフィール画像セクション */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
             {profile?.profile_image ? (

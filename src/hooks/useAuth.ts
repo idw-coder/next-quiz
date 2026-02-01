@@ -1,40 +1,31 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { userRepository, getUserImageUrl, type User } from '@/lib/user.repository'
 import { authRepository } from '@/lib/auth.repository'
 
+// クエリキーを定数化（他のファイルからも使えるようにexport）
+export const USER_QUERY_KEY = ['user'] as const
+
 export function useAuth() {
     const router = useRouter()
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-    const [user, setUser] = useState<User | null>(null)
-    const [loading, setLoading] = useState(true)
+    const queryClient = useQueryClient()
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-
-            // const hasSession = document.cookie.includes('laravel_session')
-            // if (!hasSession) {
-            //     setIsAuthenticated(false)
-            //     setLoading(false)
-            //     return
-            // }
-
+    // React Queryでユーザー情報を取得・キャッシュ
+    const { data: user, isLoading, isError } = useQuery<User | null>({
+        queryKey: USER_QUERY_KEY,
+        queryFn: async () => {
             try {
-                const data = await userRepository.getProfile()
-                setUser(data)
-                setIsAuthenticated(true)
+                return await userRepository.getProfile()
             } catch (error) {
                 console.error('プロフィール取得エラー ', error)
-                setIsAuthenticated(false)
-            } finally {
-                setLoading(false)
+                return null
             }
-        }
-
-        fetchProfile()
-    }, [])
+        },
+        retry: false,
+        staleTime: 5 * 60 * 1000, // 5分間はキャッシュを使用
+    })
 
     const logout = async () => {
         try {
@@ -42,15 +33,14 @@ export function useAuth() {
         } catch (error) {
             console.error('ログアウトエラー ', error)
         }
-        setIsAuthenticated(false)
-        setUser(null)
+        queryClient.setQueryData(USER_QUERY_KEY, null) // キャッシュをクリア
         router.push('/signin')
     }
 
     return {
-        isAuthenticated,
-        user,
-        loading,
+        isAuthenticated: !!user,
+        user: user ?? null,
+        loading: isLoading,
         logout,
         profileImageUrl: getUserImageUrl(user?.profile_image),
     }

@@ -2,18 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button, Link } from "@mui/material";
 import { authRepository } from "@/lib/auth.repository";
+import { USER_QUERY_KEY } from "@/hooks/useAuth";
 
 export default function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
     try {
       await authRepository.login({ email, password })
+      await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY }) // 認証状態を再取得
       router.push("/home");
     } catch (error) {
       alert("ログインに失敗しました");
@@ -21,7 +25,7 @@ export default function Signin() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px' }}>
       <p style={{ fontSize: "14px" }}>
         アカウントを持っていない場合は<Link href="/signup">新規登録</Link>から
       </p>
