@@ -61,6 +61,9 @@ export default function Header() {
           </a> */}
           {loading ? null : user?.role === 'admin' && (
             <>
+              <a href="/quiz-categories" style={{ textDecoration: 'none', color: 'inherit' }}>
+                カテゴリー管理
+              </a>
               <a href="/users" style={{ textDecoration: 'none', color: 'inherit' }}>
                 ユーザー一覧
               </a>

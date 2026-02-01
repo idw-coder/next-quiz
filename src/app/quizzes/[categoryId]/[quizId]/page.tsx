@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : `Q. ${quiz.question}`;
 
     return {
-      title: title,
-      description: `【解説付き・登録不要】${quiz.question}。移動時間のスキマに手軽に知識チェック。Web開発者向け無料クイズでプログラミング学習や面接対策を効率化しよう。`,
+      title: title, // php問題 無料 
+      description: `【解説付き・登録不要】${quiz.question}。移動時間のスキマに手軽に知識チェック。Web開発者向け無料クイズでプログラミング学習や面接対策を効率化しよう。`, // そこまで重要でない
     };
   } catch (error) {
     return {

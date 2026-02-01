@@ -71,10 +71,10 @@ export const syncLocalHistoryToServer = async (): Promise<void> => {
         h.answeredAt != null
     )
 
-    if (validHistories.length === 0) {
-        clearLocalStorage()
-        return
-    }
+    // if (validHistories.length === 0) {
+    //     clearLocalStorage()
+    //     return
+    // }
 
     try {
         const payloads: QuizHistoryPayload[] = validHistories.map(h => ({
