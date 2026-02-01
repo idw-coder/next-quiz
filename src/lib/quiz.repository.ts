@@ -9,6 +9,7 @@ export interface QuizCategory {
     thumbnail_path?: string | null
     thumbnail_url?: string | null
     author_id: number
+    display_order?: number | null
     created_at: string
     updated_at: string
     deleted_at?: string | null
@@ -74,6 +75,7 @@ export const quizRepository = {
             category_name: string
             description: string
             thumbnail?: File | null
+            display_order?: number | null
         }
     ): Promise<QuizCategory> => {
         const formData = new FormData()
@@ -81,6 +83,9 @@ export const quizRepository = {
         formData.append('description', params.description)
         if (params.thumbnail) {
             formData.append('thumbnail', params.thumbnail)
+        }
+        if (params.display_order != null) {
+            formData.append('display_order', String(params.display_order))
         }
 
         const { data } = await api.post(`/quiz/categories/${id}`, formData, {

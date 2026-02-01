@@ -17,6 +17,7 @@ function EditCategoryContent() {
     const [formData, setFormData] = useState({
         category_name: '',
         description: '',
+        display_order: '' as string,
     })
     const [thumbnail, setThumbnail] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -31,6 +32,7 @@ function EditCategoryContent() {
             setFormData({
                 category_name: category.category_name,
                 description: category.description || '',
+                display_order: category.display_order != null ? String(category.display_order) : '',
             })
             if (category.thumbnail_url) {
                 setPreviewUrl(category.thumbnail_url)
@@ -74,6 +76,7 @@ function EditCategoryContent() {
             category_name: formData.category_name,
             description: formData.description,
             thumbnail: thumbnail,
+            display_order: formData.display_order !== '' ? Number(formData.display_order) : null,
         })
     }
 
@@ -138,6 +141,22 @@ function EditCategoryContent() {
                         rows={3}
                         style={{ width: '100%', padding: '0.4rem 0.8rem', boxSizing: 'border-box' }}
                     />
+                </div>
+
+                {/* 表示順 */}
+                <div>
+                    <label htmlFor="display_order">表示順</label>
+                    <input
+                        id="display_order"
+                        type="number"
+                        value={formData.display_order}
+                        onChange={handleChange}
+                        placeholder="未設定（最後に表示）"
+                        style={{ width: '100%', padding: '0.4rem 0.8rem', boxSizing: 'border-box' }}
+                    />
+                    <span style={{ fontSize: '10px', color: '#666' }}>
+                        小さい値ほど上位に表示されます。未設定の場合は最後に表示されます。
+                    </span>
                 </div>
 
                 <Button type="submit" variant="contained" size="small" disabled={updateMutation.isPending}>

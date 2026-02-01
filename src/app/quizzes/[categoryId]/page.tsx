@@ -81,7 +81,7 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         }}
       >
         <div className="absolute inset-0 bg-black/50" />
-        <h2 className="relative z-10 text-2xl sm:text-3xl font-bold text-center py-8 text-white drop-shadow-lg">
+        <h2 className="relative z-10 text-2xl sm:text-3xl font-bold text-center py-18 text-white drop-shadow-lg">
           {category.category_name}
         </h2>
       </div>
@@ -89,12 +89,13 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         {category.description || "説明はありません。"}
       </p>
 
+      <QuizModeSelector categoryId={categoryId} />
+
+
       <p className="text-center text-sm text-gray-500 mb-6">
         全{total}問中 {startNumber}〜
         {Math.min(startNumber + perPage - 1, total)}問を表示
       </p>
-
-      <QuizModeSelector categoryId={categoryId} />
 
 
       <div className="border rounded-sm overflow-hidden">
