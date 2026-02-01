@@ -1,6 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useCallback } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from './useAuth'
+import { quizHistoryRepository, QuizHistoryPayload } from '@/lib/quizHistory.repository'
+
+// ISO 8601形式をMySQL互換形式に変換
+const toMySQLDatetime = (isoString: string): string => {
+    const date = new Date(isoString)
+    return date.toISOString().slice(0, 19).replace('T', ' ')
+}
 
 export interface QuizAnswer {
     quizId: number
@@ -14,6 +23,8 @@ interface QuizHistoryData {
 }
 
 const STORAGE_KEY = 'quiz_history'
+
+export const QUIZ_HISTORY_QUERY_KEY = ['quizHistory'] as const
 
 const loadFromStorage = (): QuizAnswer[] => {
     if (typeof window === 'undefined') return []
@@ -40,48 +51,147 @@ const saveToStorage = (answers: QuizAnswer[]): void => {
     }
 }
 
-export function useQuizHistory() {
-    const [answers, setAnswers] = useState<QuizAnswer[]>([])
-    const [loading, setLoading] = useState(true)
+export const clearLocalStorage = (): void => {
+    if (typeof window === 'undefined') return
+    localStorage.removeItem(STORAGE_KEY)
+}
 
-    useEffect(() => {
-        const loaded = loadFromStorage()
-        setAnswers(loaded)
-        setLoading(false)
-    }, [])
+export const getLocalStorageHistories = (): QuizAnswer[] => {
+    return loadFromStorage()
+}
 
-    useEffect(() => {
-        if (!loading) {
-            saveToStorage(answers)
-        }
-    }, [answers, loading])
+export const syncLocalHistoryToServer = async (): Promise<void> => {
+    const localHistories = loadFromStorage()
+    if (localHistories.length === 0) return
 
-    const addAnswer = (quizId: number, categoryId: number, isCorrect: boolean): void => {
-        const newAnswer: QuizAnswer = {
-            quizId,
-            categoryId,
-            isCorrect,
-            answeredAt: new Date().toISOString(),
-        }
-        setAnswers((prev) => [...prev, newAnswer])
+    const validHistories = localHistories.filter(h => 
+        h.quizId != null && 
+        h.categoryId != null && 
+        h.isCorrect != null && 
+        h.answeredAt != null
+    )
+
+    if (validHistories.length === 0) {
+        clearLocalStorage()
+        return
     }
 
-    const getLatestAnswer = (quizId: number): QuizAnswer | null => {
+    try {
+        const payloads: QuizHistoryPayload[] = validHistories.map(h => ({
+            quiz_id: h.quizId,
+            category_id: h.categoryId,
+            is_correct: h.isCorrect,
+            answered_at: toMySQLDatetime(h.answeredAt),
+        }))
+        await quizHistoryRepository.bulkAdd(payloads)
+        clearLocalStorage()
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { data?: unknown } }
+            console.error('Validation error details:', axiosError.response?.data)
+        }
+        console.error('Failed to sync local history to server:', error)
+    }
+}
+
+export function useQuizHistory() {
+    const { isAuthenticated, loading: authLoading } = useAuth()
+    const queryClient = useQueryClient()
+
+    // React Queryでデータ取得・キャッシュ
+    const { data: answers = [], isLoading } = useQuery<QuizAnswer[]>({
+        queryKey: QUIZ_HISTORY_QUERY_KEY,
+        queryFn: async () => {
+            if (isAuthenticated) {
+                const serverHistories = await quizHistoryRepository.getAll()
+                return serverHistories.map(h => ({
+                    quizId: h.quiz_id,
+                    categoryId: h.category_id,
+                    isCorrect: h.is_correct,
+                    answeredAt: h.answered_at,
+                }))
+            } else {
+                return loadFromStorage()
+            }
+        },
+        enabled: !authLoading,
+        staleTime: 5 * 60 * 1000, // 5分間キャッシュ
+    })
+
+    const loading = authLoading || isLoading
+
+    // 回答追加のmutation
+    const addMutation = useMutation({
+        mutationFn: async ({ quizId, categoryId, isCorrect }: { quizId: number; categoryId: number; isCorrect: boolean }) => {
+            const newAnswer: QuizAnswer = {
+                quizId,
+                categoryId,
+                isCorrect,
+                answeredAt: toMySQLDatetime(new Date().toISOString()),
+            }
+
+            if (isAuthenticated) {
+                await quizHistoryRepository.add({
+                    quiz_id: quizId,
+                    category_id: categoryId,
+                    is_correct: isCorrect,
+                    answered_at: newAnswer.answeredAt,
+                })
+            }
+
+            return newAnswer
+        },
+        onSuccess: (newAnswer) => {
+            // キャッシュを更新
+            queryClient.setQueryData<QuizAnswer[]>(QUIZ_HISTORY_QUERY_KEY, (old = []) => {
+                const updated = [...old, newAnswer]
+                if (!isAuthenticated) {
+                    saveToStorage(updated)
+                }
+                return updated
+            })
+        },
+        onError: (error) => {
+            console.error('Failed to add answer:', error)
+        },
+    })
+
+    // 履歴クリアのmutation
+    const clearMutation = useMutation({
+        mutationFn: async () => {
+            if (isAuthenticated) {
+                await quizHistoryRepository.clear()
+            } else {
+                localStorage.removeItem(STORAGE_KEY)
+            }
+        },
+        onSuccess: () => {
+            queryClient.setQueryData<QuizAnswer[]>(QUIZ_HISTORY_QUERY_KEY, [])
+        },
+        onError: (error) => {
+            console.error('Failed to clear history:', error)
+        },
+    })
+
+    const addAnswer = useCallback((quizId: number, categoryId: number, isCorrect: boolean): void => {
+        addMutation.mutate({ quizId, categoryId, isCorrect })
+    }, [addMutation])
+
+    const getLatestAnswer = useCallback((quizId: number): QuizAnswer | null => {
         const filtered = answers.filter((a) => a.quizId === quizId)
         if (filtered.length === 0) return null
         return filtered[filtered.length - 1]
-    }
+    }, [answers])
 
-    const getAnswerHistory = (quizId: number): QuizAnswer[] => {
+    const getAnswerHistory = useCallback((quizId: number): QuizAnswer[] => {
         return answers.filter((a) => a.quizId === quizId)
-    }
+    }, [answers])
 
-    const clearHistory = (): void => {
-        setAnswers([])
-        localStorage.removeItem(STORAGE_KEY)
-    }
+    const clearHistory = useCallback((): void => {
+        clearMutation.mutate()
+    }, [clearMutation])
 
-    const getWrongQuizIdsByCategory = (categoryId: number): number[] => {
+    const getWrongQuizIdsByCategory = useCallback((categoryId: number): number[] => {
         const latestByQuiz = new Map<number, QuizAnswer>();
 
         answers.filter((a) => a.categoryId === categoryId)
@@ -89,7 +199,7 @@ export function useQuizHistory() {
 
         return Array.from(latestByQuiz.entries()).filter(([_, answer]) => !answer.isCorrect)
             .map(([quizId, _]) => quizId); 
-    }
+    }, [answers])
 
     return {
         answers,

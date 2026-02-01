@@ -52,7 +52,7 @@ sequenceDiagram
     rect rgb(255, 245, 230)
         Note over B,DB: 同期処理
         B->>LS: 読み取り [def]
-        B->>API: POST /quiz-history/bulk<br/>{answers: [def]}
+        B->>API: POST /quiz/histories/bulk<br/>{histories: [def]}
         API->>DB: INSERT def
         Note over DB: user_id=1 → [abc, def]
         API-->>B: 成功
@@ -61,7 +61,7 @@ sequenceDiagram
 
     rect rgb(230, 240, 255)
         Note over B,DB: 履歴取得
-        B->>API: GET /quiz-history
+        B->>API: GET /quiz/histories
         API->>DB: SELECT * WHERE user_id=1
         DB-->>API: [abc, def]
         API-->>B: [abc, def]
@@ -77,7 +77,7 @@ flowchart LR
         A -->|NO| C[localStorage]
     end
 
-    B --> D[(MySQL<br/>quiz_answers)]
+    B --> D[(MySQL<br/>quiz_histories)]
     C --> E[(ブラウザ<br/>localStorage)]
 
     subgraph ログイン時
@@ -87,14 +87,14 @@ flowchart LR
 
 ```mermaid
 erDiagram
-    users ||--o{ quiz_answers : has
+    users ||--o{ quiz_histories : has
     users {
         bigint id PK
         varchar name
         varchar email
         timestamp created_at
     }
-    quiz_answers {
+    quiz_histories {
         bigint id PK
         bigint user_id FK
         bigint quiz_id

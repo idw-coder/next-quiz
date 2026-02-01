@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button, Link } from "@mui/material";
 import { authRepository } from "@/lib/auth.repository";
 import { USER_QUERY_KEY } from "@/hooks/useAuth";
+import { syncLocalHistoryToServer } from "@/hooks/useQuizHistory";
 
 export default function Signin() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,7 @@ export default function Signin() {
     e.preventDefault();
     try {
       await authRepository.login({ email, password })
+      await syncLocalHistoryToServer() // localStorageの履歴をサーバーに同期
       await queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY }) // 認証状態を再取得
       router.push("/home");
     } catch (error) {
