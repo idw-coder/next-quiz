@@ -70,9 +70,21 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         ホームに戻る
       </Link>
 
-      <h2 className="text-xl font-bold text-center mb-6">
-        {category.category_name}
-      </h2>
+      <div
+        className="relative rounded-lg overflow-hidden mb-6"
+        style={{
+          backgroundImage: category.thumbnail_url
+            ? `url(${category.thumbnail_url})`
+            : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/50" />
+        <h2 className="relative z-10 text-2xl sm:text-3xl font-bold text-center py-8 text-white drop-shadow-lg">
+          {category.category_name}
+        </h2>
+      </div>
       <p className="text-center text-sm text-gray-500 mb-6">
         {category.description || "説明はありません。"}
       </p>
