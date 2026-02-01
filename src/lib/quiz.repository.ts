@@ -19,6 +19,7 @@ export interface Quiz {
     category_id: number
     question: string
     explanation: string
+    tags?: { id: number; tag_name: string }[]
 }
 
 export interface Choice {

@@ -120,7 +120,7 @@ export default function QuizModeSelector({ categoryId }: { categoryId: string })
                 </div>
             )}
 
-            <div className="flex justify-center items-center gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
                 <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border rounded">
                         <span className="text-sm text-gray-600">ランダム出題</span>
