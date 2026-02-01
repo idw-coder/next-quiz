@@ -104,7 +104,7 @@ export default async function QuizListPage({ params, searchParams }: Props) {
                 <td className="p-1 align-middle">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <span>{quiz.question}</span>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2 shrink-0">
                       {quiz.tags && quiz.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {quiz.tags.map((tag) => (
