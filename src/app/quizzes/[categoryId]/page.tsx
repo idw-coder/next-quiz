@@ -8,7 +8,7 @@ import QuizModeSelector from "./components/QuizModeSelector";
 
 type Props = {
   params: Promise<{ categoryId: string }>;
-  searchParams: Promise<{ page?: string; tag_ids?: string }>;
+  searchParams: Promise<{ page?: string; tag_ids?: string; keyword?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function QuizListPage({ params, searchParams }: Props) {
   const { categoryId } = await params;
-  const { page, tag_ids } = await searchParams;
+  const { page, tag_ids, keyword } = await searchParams;
 
   const currentPage = Math.max(1, Number(page) || 1);
   const perPage = 10;
@@ -47,7 +47,8 @@ export default async function QuizListPage({ params, searchParams }: Props) {
     quizRepository.listByCategory(Number(categoryId), {
       page: currentPage,
       perPage,
-      tag_ids: tagIds,
+      tagIds: tagIds,
+      keyword: keyword,
     }),
   ]);
 
@@ -130,6 +131,7 @@ export default async function QuizListPage({ params, searchParams }: Props) {
         lastPage={last_page}
         baseUrl={`/quizzes/${categoryId}`}
         tagIds={tag_ids}
+        keyword={keyword}
       />
     </div>
   );

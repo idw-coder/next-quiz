@@ -7,9 +7,10 @@ interface Props {
     lastPage: number;
     baseUrl: string;
     tagIds?: string;
+    keyword?: string;
 }
 
-export default function Pagination({ currentPage, lastPage, baseUrl, tagIds }: Props) {
+export default function Pagination({ currentPage, lastPage, baseUrl, tagIds, keyword }: Props) {
     if (lastPage <= 1) return null;
 
     const buildUrl = (page: number) => {
@@ -17,6 +18,9 @@ export default function Pagination({ currentPage, lastPage, baseUrl, tagIds }: P
         params.set("page", String(page));
         if (tagIds) {
             params.set("tag_ids", tagIds);
+        }
+        if (keyword) {
+            params.set("keyword", keyword);
         }
         return `${baseUrl}?${params.toString()}`;
     };

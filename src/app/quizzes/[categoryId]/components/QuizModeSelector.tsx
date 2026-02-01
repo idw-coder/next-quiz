@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ReplayIcon from "@mui/icons-material/Replay";
 import { useQuizHistory } from "@/hooks/useQuizHistory";
@@ -15,8 +15,36 @@ export default function QuizModeSelector({ categoryId }: { categoryId: string })
     const [count, setCount] = useState(5);
     const { getWrongQuizIdsByCategory } = useQuizHistory();
 
+    // URLからパラメータを取得
     const tagIdsParam = searchParams.get("tag_ids");
+    const keywordParam = searchParams.get("keyword") || "";
     const selectedTagIds = tagIdsParam ? tagIdsParam.split(",").map(Number) : [];
+
+    // 検索入力用のstate
+    const [inputKeyword, setInputKeyword] = useState(keywordParam);
+
+    // URL変更時にinputKeywordを同期
+    useEffect(() => {
+        setInputKeyword(keywordParam);
+    }, [keywordParam]);
+
+    // デバウンスでURL更新
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (inputKeyword !== keywordParam) {
+                const params = new URLSearchParams();
+                if (inputKeyword) {
+                    params.set("keyword", inputKeyword);
+                }
+                if (selectedTagIds.length > 0) {
+                    params.set("tag_ids", selectedTagIds.join(","));
+                }
+                router.push(`/quizzes/${categoryId}?${params.toString()}`);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [inputKeyword]);
 
     const wrongIds = getWrongQuizIdsByCategory(Number(categoryId));
 
@@ -32,6 +60,13 @@ export default function QuizModeSelector({ categoryId }: { categoryId: string })
             : selectedTagIds.filter((id) => id !== tagId);
         
         const params = new URLSearchParams();
+        if (inputKeyword) {
+            /**
+             * set()は、URLSearchParamsオブジェクトにキーと値を設定するメソッドです。
+             * 第一引数にキーを指定し、第二引数に値を指定します。
+             */
+            params.set("keyword", inputKeyword);
+        }
         if (newTagIds.length > 0) {
             params.set("tag_ids", newTagIds.join(","));
         }
@@ -50,6 +85,19 @@ export default function QuizModeSelector({ categoryId }: { categoryId: string })
 
     return (
         <>
+            {/* 検索入力欄 */}
+            <div className="mb-4">
+                <div className="flex justify-center">
+                    <input
+                        type="text"
+                        value={inputKeyword}
+                        onChange={(e) => setInputKeyword(e.target.value)}
+                        placeholder="キーワードで検索..."
+                        className="w-64 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+            </div>
+
             {!tagsLoading && tags && tags.length > 0 && (
                 <div className="mb-4">
                     <div className="flex flex-wrap justify-center items-center gap-3">

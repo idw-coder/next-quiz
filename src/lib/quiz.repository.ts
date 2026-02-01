@@ -90,16 +90,17 @@ export const quizRepository = {
 
     listByCategory: async (
         categoryId: number,
-        params: PaginationParams & { tag_ids?: number[] } = {}
+        params: PaginationParams & { tagIds?: number[]; keyword?: string } = {}
     ): Promise<PagenatedQuizzes> => {
-        const { page = 1, perPage = 10, tag_ids } = params
+        const { page = 1, perPage = 10, tagIds, keyword } = params
         const { data } = await api.get(
             `/quiz/category_${categoryId}/quizzes`,
         {
             params: {
                 page,
                 per_page: perPage,
-                tag_ids: tag_ids?.length ? tag_ids.join(',') : undefined,
+                tag_ids: tagIds?.length ? tagIds.join(',') : undefined,
+                keyword: keyword || undefined,
             }
         })
         return data
