@@ -65,7 +65,7 @@ export default function Header() {
                 ユーザー一覧
               </a>
               <a href="/quiz-tags" style={{ textDecoration: 'none', color: 'inherit' }}>
-                タグ一覧
+                クイズタグ一覧
               </a>
             </>
           )}
