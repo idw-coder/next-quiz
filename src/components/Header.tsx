@@ -60,9 +60,14 @@ export default function Header() {
               問題集一覧
           </a> */}
           {loading ? null : user?.role === 'admin' && (
-            <a href="/users" style={{ textDecoration: 'none', color: 'inherit' }}>
-              ユーザー一覧
-            </a>
+            <>
+              <a href="/users" style={{ textDecoration: 'none', color: 'inherit' }}>
+                ユーザー一覧
+              </a>
+              <a href="/quiz-tags" style={{ textDecoration: 'none', color: 'inherit' }}>
+                タグ一覧
+              </a>
+            </>
           )}
           {loading ? null : isAuthenticated ? (
             <>
