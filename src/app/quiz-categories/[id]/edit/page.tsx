@@ -41,7 +41,7 @@ function EditCategoryContent() {
     }, [category])
 
     const updateMutation = useMutation({
-        mutationFn: (params: { category_name: string; description: string; thumbnail?: File | null }) =>
+        mutationFn: (params: { category_name: string; description: string; thumbnail?: File | null; display_order?: number | null }) =>
             quizRepository.updateCategory(id, params),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] })
