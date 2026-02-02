@@ -6,11 +6,13 @@ import { Button } from "@mui/material";
 import { AccountCircle, ArrowBackIosNew } from "@mui/icons-material";
 import { userRepository, getUserImageUrl } from "@/lib/user.repository";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useConfirmDialog } from "@/store/useConfirmDialog";
 
 function UserEditContent() {
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
+  const { open } = useConfirmDialog();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -77,133 +79,125 @@ function UserEditContent() {
     setFormData((prev) => ({ ...prev, role: role }));
   };
 
-  const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleProfileSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!window.confirm("ユーザー情報を更新してもよろしいですか？")) {
-      return;
-    }
-    setStatus({ loading: true, success: false, error: false, message: "" });
-    try {
-      const data = await userRepository.update(Number(id), {
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-      });
-      setStatus({
-        loading: false,
-        success: true,
-        error: false,
-        message: data.message || "ユーザー情報を更新しました",
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "ユーザー情報の更新に失敗しました";
-      setStatus({
-        loading: false,
-        success: false,
-        error: true,
-        message: errorMessage,
-      });
-    }
+    open("ユーザー情報を更新してもよろしいですか？", async () => {
+      setStatus({ loading: true, success: false, error: false, message: "" });
+      try {
+        const data = await userRepository.update(Number(id), {
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+        });
+        setStatus({
+          loading: false,
+          success: true,
+          error: false,
+          message: data.message || "ユーザー情報を更新しました",
+        });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "ユーザー情報の更新に失敗しました";
+        setStatus({
+          loading: false,
+          success: false,
+          error: true,
+          message: errorMessage,
+        });
+      }
+    });
   };
 
-  const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!window.confirm("パスワードをリセットしてもよろしいですか？")) {
-      return;
-    }
-    setStatus({ loading: true, success: false, error: false, message: "" });
-    try {
-      const data = await userRepository.resetPassword(
-        Number(id),
-        passwordData.new_password
-      );
-      setStatus({
-        loading: false,
-        success: true,
-        error: false,
-        message: data.message || "パスワードをリセットしました",
-      });
-      setPasswordData({ new_password: "" });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "パスワードのリセットに失敗しました";
-      setStatus({
-        loading: false,
-        success: false,
-        error: true,
-        message: errorMessage,
-      });
-    }
+    open("パスワードをリセットしてもよろしいですか？", async () => {
+      setStatus({ loading: true, success: false, error: false, message: "" });
+      try {
+        const data = await userRepository.resetPassword(
+          Number(id),
+          passwordData.new_password
+        );
+        setStatus({
+          loading: false,
+          success: true,
+          error: false,
+          message: data.message || "パスワードをリセットしました",
+        });
+        setPasswordData({ new_password: "" });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "パスワードのリセットに失敗しました";
+        setStatus({
+          loading: false,
+          success: false,
+          error: true,
+          message: errorMessage,
+        });
+      }
+    });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!window.confirm("プロフィール画像を更新してもよろしいですか？")) {
-      e.target.value = "";
-      return;
-    }
-
-    setStatus({ loading: true, success: false, error: false, message: "" });
-    try {
-      const data = await userRepository.updateImage(Number(id), file);
-      setStatus({
-        loading: false,
-        success: true,
-        error: false,
-        message: data.message || "プロフィール画像を更新しました",
-      });
-      setProfileImage(data.profile_image || null);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "プロフィール画像の更新に失敗しました";
-      setStatus({
-        loading: false,
-        success: false,
-        error: true,
-        message: errorMessage,
-      });
-    }
+    open("プロフィール画像を更新してもよろしいですか？", async () => {
+      setStatus({ loading: true, success: false, error: false, message: "" });
+      try {
+        const data = await userRepository.updateImage(Number(id), file);
+        setStatus({
+          loading: false,
+          success: true,
+          error: false,
+          message: data.message || "プロフィール画像を更新しました",
+        });
+        setProfileImage(data.profile_image || null);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "プロフィール画像の更新に失敗しました";
+        setStatus({
+          loading: false,
+          success: false,
+          error: true,
+          message: errorMessage,
+        });
+      }
+    });
   };
 
-  const handleImageDelete = async () => {
-    if (
-      !window.confirm(
-        "プロフィール画像を削除してもよろしいですか？この操作は取り消せません"
-      )
-    ) {
-      return;
-    }
-
-    setStatus({ loading: true, success: false, error: false, message: "" });
-    try {
-      const data = await userRepository.deleteImage(Number(id));
-      setStatus({
-        loading: false,
-        success: true,
-        error: false,
-        message: data.message || "プロフィール画像を削除しました",
-      });
-      setProfileImage(null);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "プロフィール画像の削除に失敗しました";
-      setStatus({
-        loading: false,
-        success: false,
-        error: true,
-        message: errorMessage,
-      });
-    }
+  const handleImageDelete = () => {
+    open(
+      "プロフィール画像を削除してもよろしいですか？この操作は取り消せません",
+      async () => {
+        setStatus({ loading: true, success: false, error: false, message: "" });
+        try {
+          const data = await userRepository.deleteImage(Number(id));
+          setStatus({
+            loading: false,
+            success: true,
+            error: false,
+            message: data.message || "プロフィール画像を削除しました",
+          });
+          setProfileImage(null);
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : "プロフィール画像の削除に失敗しました";
+          setStatus({
+            loading: false,
+            success: false,
+            error: true,
+            message: errorMessage,
+          });
+        }
+      }
+    );
   };
 
   return (

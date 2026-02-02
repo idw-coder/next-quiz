@@ -16,12 +16,14 @@ import {
 import { Restore, Delete, Edit, Visibility, Add } from "@mui/icons-material";
 import { userRepository, type User } from "@/lib/user.repository";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useConfirmDialog } from "@/store/useConfirmDialog";
 
 function UsersContent() {
 	const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { open } = useConfirmDialog();
 
   const fetchUsers = async () => {
     try {
@@ -49,34 +51,32 @@ function UsersContent() {
     fetchUsers();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("ユーザーを削除してもよろしいですか？")) {
-      return;
-    }
-    try {
-			setLoading(true)
-			await userRepository.delete(id)
-			fetchUsers()
-		} catch (error) {
-			setError(error instanceof Error ? error.message : 'ユーザーの削除に失敗しました')
-		} finally {
-			setLoading(false)
-		}
+  const handleDelete = (id: number) => {
+    open("ユーザーを削除してもよろしいですか？", async () => {
+      try {
+        setLoading(true)
+        await userRepository.delete(id)
+        fetchUsers()
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'ユーザーの削除に失敗しました')
+      } finally {
+        setLoading(false)
+      }
+    });
   };
 
-  const handleRestore = async (id: number) => {
-    if (!window.confirm("ユーザーを復元してもよろしいですか？")) {
-      return;
-    }
-    try {
-			setLoading(true)
-			await userRepository.restore(id)
-			fetchUsers()
-		} catch (error) {
-			setError(error instanceof Error ? error.message : 'ユーザーの復元に失敗しました')
-		} finally {
-			setLoading(false)
-		}
+  const handleRestore = (id: number) => {
+    open("ユーザーを復元してもよろしいですか？", async () => {
+      try {
+        setLoading(true)
+        await userRepository.restore(id)
+        fetchUsers()
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'ユーザーの復元に失敗しました')
+      } finally {
+        setLoading(false)
+      }
+    });
   };
 
   if (loading) {

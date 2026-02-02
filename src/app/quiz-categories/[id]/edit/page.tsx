@@ -7,12 +7,14 @@ import { Image as ImageIcon } from 'lucide-react'
 import { quizRepository } from '@/lib/quiz.repository'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useConfirmDialog } from '@/store/useConfirmDialog'
 
 function EditCategoryContent() {
     const router = useRouter()
     const params = useParams()
     const id = Number(params.id)
     const queryClient = useQueryClient()
+    const { open } = useConfirmDialog()
 
     const [formData, setFormData] = useState({
         category_name: '',
@@ -67,16 +69,15 @@ function EditCategoryContent() {
         setPreviewUrl(URL.createObjectURL(file))
     }
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!window.confirm('カテゴリを更新してもよろしいですか？')) {
-            return
-        }
-        updateMutation.mutate({
-            category_name: formData.category_name,
-            description: formData.description,
-            thumbnail: thumbnail,
-            display_order: formData.display_order !== '' ? Number(formData.display_order) : null,
+        open('カテゴリを更新してもよろしいですか？', async () => {
+            updateMutation.mutate({
+                category_name: formData.category_name,
+                description: formData.description,
+                thumbnail: thumbnail,
+                display_order: formData.display_order !== '' ? Number(formData.display_order) : null,
+            })
         })
     }
 

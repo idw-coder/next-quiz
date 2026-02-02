@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Script from "next/script";
 import GoogleAdSense from "@/components/GoogleAdSense";
 import QueryProvider from "@/providers/QueryProvider";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -79,6 +80,7 @@ export default function RootLayout({
       >
         <QueryProvider>
           <Header />
+          <ConfirmDialog />
           <main
             style={{
               flex: "1",

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { quizRepository, QuizTag } from "@/lib/quiz.repository";
+import { useConfirmDialog } from "@/store/useConfirmDialog";
 
 export default function QuizTagsPage() {
   const [tags, setTags] = useState<QuizTag[]>([]);
@@ -17,6 +18,8 @@ export default function QuizTagsPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editTagName, setEditTagName] = useState("");
   const [editSlug, setEditSlug] = useState("");
+
+  const { open } = useConfirmDialog();
 
   const fetchTags = async () => {
     try {
@@ -70,14 +73,15 @@ export default function QuizTagsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("このタグを削除しますか？関連するクイズからも外れます。")) return;
+    open("このタグを削除しますか？関連するクイズからも外れます。", async () => {
+      try {
+        await quizRepository.deleteTag(id);
+        await fetchTags();
+      } catch (err) {
+        alert("削除に失敗しました");
+      }
 
-    try {
-      await quizRepository.deleteTag(id);
-      await fetchTags();
-    } catch (err) {
-      alert("削除に失敗しました");
-    }
+    })
   };
 
   if (loading) {

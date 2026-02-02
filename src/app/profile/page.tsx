@@ -18,6 +18,7 @@ import { quizRepository, QuizCategory } from '@/lib/quiz.repository'
 import { useQuizHistory, QuizAnswer } from '@/hooks/useQuizHistory'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useConfirmDialog } from '@/store/useConfirmDialog'
 
 interface CategoryHistory {
     category: QuizCategory
@@ -238,6 +239,7 @@ function QuizHistorySection() {
 
 function ProfileContent() {
     const queryClient = useQueryClient()
+    const { open } = useConfirmDialog()
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -314,38 +316,33 @@ function ProfileContent() {
         setPasswordData((prev) => ({...prev, [e.target.id]: e.target.value }))
     }
 
-    const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleProfileSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!window.confirm('プロフィールを更新してもよろしいですか？')) {
-            return
-        }
-        updateProfileMutation.mutate(formData)
+        open('プロフィールを更新してもよろしいですか？', async () => {
+            updateProfileMutation.mutate(formData)
+        })
     }
 
-    const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!window.confirm('パスワードを更新してもよろしいですか？')) {
-            return
-        }
-        updatePasswordMutation.mutate(passwordData)
+        open('パスワードを更新してもよろしいですか？', async () => {
+            updatePasswordMutation.mutate(passwordData)
+        })
     }
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
-        if (!window.confirm('プロフィール画像を更新してもよろしいですか？')) {
-            e.target.value = ''
-            return
-        }
-        uploadImageMutation.mutate(file)
+        open('プロフィール画像を更新してもよろしいですか？', async () => {
+            uploadImageMutation.mutate(file)
+        })
     }
 
     
-    const handleImageDelete = async () => {
-        if (!window.confirm('プロフィール画像を削除してもよろしいですか？この操作は取り消せません')) {
-            return
-        }
-        deleteImageMutation.mutate()
+    const handleImageDelete = () => {
+        open('プロフィール画像を削除してもよろしいですか？この操作は取り消せません', async () => {
+            deleteImageMutation.mutate()
+        })
     }
 
     const isAnyLoading = isLoading || 

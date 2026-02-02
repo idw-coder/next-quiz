@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { quizRepository } from "@/lib/quiz.repository";
+import { useConfirmDialog } from "@/store/useConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Pencil, RotateCcw, Trash2, Plus } from "lucide-react";
 
 export default function QuizCategoriesPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { open } = useConfirmDialog();
 
   const { data: categories = [], isLoading, error } = useQuery({
     queryKey: ["categories"],
@@ -17,16 +19,18 @@ export default function QuizCategoriesPage() {
     enabled: user?.role === "admin",
   });
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("問題カテゴリーを削除してもよろしいですか？")) return;
-    // TODO: バックエンドAPI実装後に有効化
-    console.log("Delete category:", id);
+  const handleDelete = (id: number) => {
+    open("問題カテゴリーを削除してもよろしいですか？", async () => {
+      // TODO: バックエンドAPI実装後に有効化
+      console.log("Delete category:", id);
+    });
   };
 
-  const handleRestore = async (id: number) => {
-    if (!window.confirm("問題カテゴリーを復元してもよろしいですか？")) return;
-    // TODO: バックエンドAPI実装後に有効化
-    console.log("Restore category:", id);
+  const handleRestore = (id: number) => {
+    open("問題カテゴリーを復元してもよろしいですか？", async () => {
+      // TODO: バックエンドAPI実装後に有効化
+      console.log("Restore category:", id);
+    });
   };
 
   const formatDate = (date: string) => new Date(date).toLocaleDateString();
