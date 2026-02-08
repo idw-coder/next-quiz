@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 
 
 
-export function ConfirmDialog() {
+export function ConfirmDialog() { // 柔軟性のあるコンポーネント
     const { isOpen, message, onConfirm, close } = useConfirmDialog();
 
     const handleConfirm = () => {
