@@ -47,7 +47,7 @@ export default function Header() {
         }}
       >
         <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
-          <a href="/home" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <a href="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Terminal sx={{ fontSize: '1.4rem', color: '#333' }} />
             <span>Web開発者向けクイズ</span>
             <span style={{ fontSize: '0.75rem', fontWeight: 'normal', color: '#666', borderLeft: '1px solid #ccc', paddingLeft: '0.5rem' }} className="hidden sm:inline">
